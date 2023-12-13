@@ -1,0 +1,5 @@
+# Result of building
+bin/
+
+# Result of coverage
+cover.out
