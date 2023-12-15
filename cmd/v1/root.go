@@ -1,10 +1,12 @@
-package cmd
+package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/cedrata/jira-helper/pkg/config"
+	"github.com/cedrata/jira-helper/pkg/rest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -13,7 +15,7 @@ var (
 	// Used for flags.
 	cfgFile     string
 	userLicense string
-	conf *config.Config
+	conf        *config.Config
 
 	rootCmd = &cobra.Command{
 		Use:   "jirahelper <subcommand>",
@@ -40,7 +42,7 @@ func init() {
 }
 
 func initConfig() {
-	var err error 
+	var err error
 
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -69,5 +71,21 @@ func getStory(cmd *cobra.Command, args []string) error {
 	if len(args) != 1 {
 		return errors.New("expected one element")
 	}
+
+    fmt.Println(cfgFile) 
+
+    resp, err := rest.Get(rest.JiraConfig{
+        Token: "",
+        Host: "",
+        Protocol: "https",
+        Operation: rest.GetIssues,
+        ProjectId: "",
+    })
+
+    if err != nil {
+        return err
+    }
+
+    fmt.Println(resp)
 	return nil
 }

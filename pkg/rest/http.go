@@ -1,50 +1,81 @@
 package rest
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
+	"text/template"
 
 	"github.com/pkg/errors"
 )
 
-const (
-	JSONContentType = "application/json"
-)
+func Get(jiraBase JiraConfig) (*[]byte, error) {
+	var payload = []byte("")
+	var err error
+	var url string
+	var req *http.Request
+	var resp *http.Response
 
-type RestClient struct {
-	Token   string
-	Project string
-	Url     string
+	url, err = operationSwitch(jiraBase.Operation, jiraBase)
+	if err != nil {
+		return &payload, errors.WithStack(err)
+	}
+
+	req, err = http.NewRequest(http.MethodGet, url, nil)
+	req.Header.Set("Authorization", jiraBase.Token)
+	req.Header.Set("Content-Type", JSONContentType)
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return &payload, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("hello")
+		return &payload, fmt.Errorf("expected status %s found %s",
+			http.StatusText(http.StatusOK),
+			http.StatusText(resp.StatusCode),
+		)
+	}
+
+	payload, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return &payload, errors.WithStack(err)
+	}
+
+	fmt.Printf("%s", payload)
+
+	return &payload, nil
 }
 
-func (client *RestClient) GetAllIssues() error {
-	url := client.Url + "/rest/api/2/search?jql=project=" + client.Project + "+order+by+duedate&fields=id,key"
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func operationSwitch(op Operation, content any) (string, error) {
+	var urlTemplate string
+	var err error
+	switch op {
+	case GetIssues:
+		urlTemplate, err = getUrlFromTemplate(TemplateUrlGetProjIssues, GetIssues, content)
+	default:
+		err = errors.Errorf("unexpected operaion %s", op)
+	}
+
 	if err != nil {
-		return errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	req.Header.Set("Authorization", "Bearer " + client.Token)
-	req.Header.Set("Content-Type", JSONContentType)
+	return getUrlFromTemplate(urlTemplate, op, content)
+}
 
-	res, err := http.DefaultClient.Do(req)
+func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
+	urlTemplate, err := template.
+		New(fmt.Sprintf("operation-%s-url", op)).
+		Parse(t)
 	if err != nil {
-		return errors.WithStack(err)
-	}
-	
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("expected status ok found %s", http.StatusText(res.StatusCode))
+		return "", errors.WithStack(err)
 	}
 
-	data, err  := io.ReadAll(res.Body)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	fmt.Printf("data %s", string(data))
-
-	return nil
+	buf := new(bytes.Buffer)
+	urlTemplate.Execute(buf, content)
+	url := buf.String()
+	return url, nil
 }
