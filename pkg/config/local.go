@@ -7,8 +7,6 @@ import (
 
 const (
 	configType = "yaml"
-	configName = ".jira.config"
-	configDir  = "~"
 )
 
 type Config struct {

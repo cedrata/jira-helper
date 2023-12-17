@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/cedrata/jira-helper/pkg/config"
@@ -11,9 +12,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-
-func main(){
-    Execute()
+func main() {
+	Execute()
 }
 
 var (
@@ -38,7 +38,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
-	viper.BindPFlag("author", rootCmd.PersistentFlags().Lookup("author"))
+	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 	viper.SetDefault("author", "NAME HERE <EMAIL ADDRESS>")
 
 	for i := range cmds {
@@ -49,16 +49,33 @@ func init() {
 func initConfig() {
 	var err error
 
+	fmt.Println("pippooo")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		conf, err = config.LoadLocalConfig(cfgFile, ".cobra.yaml")
 		cobra.CheckErr(err)
+		if err != nil {
+			fmt.Printf("Error loading config file: %v\n", err)
+		} else {
+			fmt.Printf("Loaded Config: %+v\n", conf)
+		}
 	} else {
 		// Find home directory.
 		home, err := os.UserHomeDir()
+		if err != nil {
+			fmt.Printf("Error finding home directory: %v\n", err)
+		} else {
+			fmt.Printf("Home Directory: %s\n", home)
+		}
 		cobra.CheckErr(err)
 
 		conf, err = config.LoadLocalConfig(home, ".cobra.yaml")
+		if err != nil {
+			fmt.Printf("Error loading config file: %v\n", err)
+		} else {
+			fmt.Printf("Loaded Config: %+v\n", conf)
+		}
+		fmt.Println(conf)
 		cobra.CheckErr(err)
 	}
 }
@@ -77,18 +94,12 @@ func getStory(cmd *cobra.Command, args []string) error {
 		return errors.New("expected one element")
 	}
 
-    resp, err := rest.Get(rest.JiraConfig{
-        Token: "",
-        Host: "",
-        Protocol: "https",
-        Operation: rest.GetIssues,
-        ProjectId: "",
-    })
+	resp, err := rest.Get(rest.GetIssues, conf, http.DefaultClient)
 
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    fmt.Println(resp)
+	fmt.Println(resp)
 	return nil
 }

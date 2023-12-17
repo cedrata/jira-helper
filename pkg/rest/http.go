@@ -7,25 +7,26 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/cedrata/jira-helper/pkg/config"
 	"github.com/pkg/errors"
 )
 
-func Get(jiraBase JiraConfig) (*[]byte, error) {
+func Get(op Operation, c *config.Config, client *http.Client) (*[]byte, error) {
 	var payload = []byte("")
 	var err error
 	var url string
 	var req *http.Request
 	var resp *http.Response
 
-	url, err = operationSwitch(jiraBase.Operation, jiraBase)
+	url, err = operationSwitch(op, c)
 	if err != nil {
 		return &payload, errors.WithStack(err)
 	}
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
-	req.Header.Set("Authorization", jiraBase.Token)
+	req.Header.Set("Authorization", c.Token)
 	req.Header.Set("Content-Type", JSONContentType)
-	resp, err = http.DefaultClient.Do(req)
+	resp, err = client.Do(req)
 	if err != nil {
 		return &payload, err
 	}

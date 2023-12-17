@@ -1,8 +1,8 @@
 package rest
 
 const (
-	JSONContentType = "application/json"
-    TemplateUrlGetProjIssues = "{{.Protocol}}://{{.Host}}/rest/api/2/search?jql=project={{.ProjectId}}+order+by+duedate&fields=id,key"
+	JSONContentType          = "application/json"
+	TemplateUrlGetProjIssues = "https://{{.JiraUrl}}/rest/api/2/search?jql=project={{.Project}}+order+by+duedate&fields=id,key"
 )
 
 const (
