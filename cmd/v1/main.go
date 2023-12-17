@@ -37,7 +37,7 @@ func Execute() error {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jira.config)")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 	viper.SetDefault("author", "NAME HERE <EMAIL ADDRESS>")
 
@@ -52,7 +52,7 @@ func initConfig() {
 	fmt.Println("pippooo")
 	if cfgFile != "" {
 		// Use config file from the flag.
-		conf, err = config.LoadLocalConfig(cfgFile, ".cobra.yaml")
+		conf, err = config.LoadLocalConfig(cfgFile, ".jira.config")
 		cobra.CheckErr(err)
 		if err != nil {
 			fmt.Printf("Error loading config file: %v\n", err)
@@ -69,7 +69,7 @@ func initConfig() {
 		}
 		cobra.CheckErr(err)
 
-		conf, err = config.LoadLocalConfig(home, ".cobra.yaml")
+		conf, err = config.LoadLocalConfig(home, ".jira.config")
 		if err != nil {
 			fmt.Printf("Error loading config file: %v\n", err)
 		} else {
