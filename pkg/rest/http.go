@@ -24,8 +24,9 @@ func Get(op Operation, c *config.Config, client *http.Client) (*[]byte, error) {
 	}
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
-	req.Header.Set("Authorization", c.Token)
+	req.Header.Set("Authorization", "Bearer "+c.Token)
 	req.Header.Set("Content-Type", JSONContentType)
+	req.Header.Set("User-Agent", "Go_JiraHelper/1.0")
 	resp, err = client.Do(req)
 	if err != nil {
 		return &payload, err
@@ -33,7 +34,6 @@ func Get(op Operation, c *config.Config, client *http.Client) (*[]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("hello")
 		return &payload, fmt.Errorf("expected status %s found %s",
 			http.StatusText(http.StatusOK),
 			http.StatusText(resp.StatusCode),
@@ -44,8 +44,6 @@ func Get(op Operation, c *config.Config, client *http.Client) (*[]byte, error) {
 	if err != nil {
 		return &payload, errors.WithStack(err)
 	}
-
-	fmt.Printf("%s", payload)
 
 	return &payload, nil
 }

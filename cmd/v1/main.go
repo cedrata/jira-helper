@@ -49,33 +49,16 @@ func init() {
 func initConfig() {
 	var err error
 
-	fmt.Println("pippooo")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		conf, err = config.LoadLocalConfig(cfgFile, ".jira.config")
 		cobra.CheckErr(err)
-		if err != nil {
-			fmt.Printf("Error loading config file: %v\n", err)
-		} else {
-			fmt.Printf("Loaded Config: %+v\n", conf)
-		}
 	} else {
 		// Find home directory.
 		home, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Printf("Error finding home directory: %v\n", err)
-		} else {
-			fmt.Printf("Home Directory: %s\n", home)
-		}
 		cobra.CheckErr(err)
 
 		conf, err = config.LoadLocalConfig(home, ".jira.config")
-		if err != nil {
-			fmt.Printf("Error loading config file: %v\n", err)
-		} else {
-			fmt.Printf("Loaded Config: %+v\n", conf)
-		}
-		fmt.Println(conf)
 		cobra.CheckErr(err)
 	}
 }
