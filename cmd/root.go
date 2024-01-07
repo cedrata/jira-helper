@@ -42,9 +42,6 @@ func Execute() error {
 func init() {
 	initConfig()
 
-	// Set default flags values from config file:
-	// TO COMPLETE...
-	// fmt.Println(conf.JiraUrl)
 	rootCmd.PersistentFlags().StringP("host", "H", conf.JiraUrl, "jira instance host")
 	rootCmd.PersistentFlags().StringP("token", "t", conf.Token, "jira instance host")
 	rootCmd.PersistentFlags().StringP("project", "p", conf.Project, "jira instance host")
@@ -88,16 +85,11 @@ func initConfig() {
 //
 // a flag to select only issues from active sprint is available
 func getStory(cmd *cobra.Command, args []string) error {
-    // TODO:
-    //  makr flags required
-    //  store flags safely (array or struct somewhere, must be const)
-    //  generate jql query to properly fetch and search for issues
 
+	status, _ := cmd.Flags().GetString("status")
+	fmt.Println(status)
 
-    status, _ := cmd.Flags().GetString("status")
-    fmt.Println(status)
-
-	resp, err := rest.Get(rest.GetIssues, conf, http.DefaultClient, cmd.Flags())
+	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
 
 	if err != nil {
 		return err
@@ -109,6 +101,6 @@ func getStory(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// fmt.Println(m["issues"])
+	fmt.Println(m["issues"])
 	return nil
 }

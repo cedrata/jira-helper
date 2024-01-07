@@ -9,27 +9,31 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/cedrata/jira-helper/pkg/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 )
 
-func Get(op Operation, c *config.Config, client *http.Client, flags *pflag.FlagSet) (*[]byte, error) {
+func Get(op Operation, client *http.Client, flags *pflag.FlagSet) (*[]byte, error) {
 	var payload = []byte("")
 	var err error
 	var url string
+	var token string
 	var req *http.Request
 	var resp *http.Response
 
-	url, err = operationSwitch(op, c, flags)
+	url, err = operationSwitch(op, flags)
 	if err != nil {
 		return &payload, errors.WithStack(err)
 	}
 
+	token, err = flags.GetString("token")
+	if err != nil {
+		return &payload, err
+	}
+
 	req, err = http.NewRequest(http.MethodGet, url, nil)
-	req.Header.Set("Authorization", "Bearer "+c.Token)
+	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", JSONContentType)
-	req.Header.Set("User-Agent", "Go_JiraHelper/1.0")
 	resp, err = client.Do(req)
 	if err != nil {
 		return &payload, err
@@ -51,20 +55,24 @@ func Get(op Operation, c *config.Config, client *http.Client, flags *pflag.FlagS
 	return &payload, nil
 }
 
-func operationSwitch(op Operation, content any, flags *pflag.FlagSet) (string, error) {
+func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 	var builtUrl string
 	var err error
 
 	switch op {
 	case GetIssues:
-		// URL example:
-		// "https://jira.springlab.enel.com/rest/api/2/search?jql=project=${project}+AND+Sprint+in+openSprints()+AND+assignee=${jira_user}&fields=description,status"
 		var urlTemplate string
+		var jiraUrl string
+
+		jiraUrl, err = flags.GetString("host")
+		if err != nil {
+			break
+		}
+
+		content := urlSearch{JiraUrl: jiraUrl}
+
 		urlTemplate, err = getUrlFromTemplate(TemplateUrlSearch, GetIssues, content)
 
-		// Generation of the JQL query
-		// prefix := "jql="
-		// suffix := ""
 		statements := []string{}
 		fields := []string{"description", "status", "issueKey", "assignee"}
 		if project, err := flags.GetString("project"); err == nil && project != "" {
@@ -106,22 +114,14 @@ func operationSwitch(op Operation, content any, flags *pflag.FlagSet) (string, e
 			[]string{
 				urlTemplate,
 				query,
-			},
-			"?",
+			}, "?",
 		)
-
-		fmt.Println(builtUrl)
-		return "", errors.Errorf("hello")
 
 	default:
 		err = errors.Errorf("unexpected operaion %s", op)
 	}
 
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-
-	return getUrlFromTemplate(builtUrl, op, content)
+	return builtUrl, errors.WithStack(err)
 }
 
 func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
