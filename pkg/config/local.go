@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	configType = "yaml"
+	configType = "env"
 )
 
 type Config struct {

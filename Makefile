@@ -1,8 +1,5 @@
 build:
-	go build -C cmd/v1 -o ../../bin/v1
-
-run:
-	./bin/v1
+	go build  -o ./bin/jhelp
 
 test:
 	go test ./...
