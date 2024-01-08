@@ -5,8 +5,8 @@ import (
 	// "net/http"
 	// "net/http/httptest"
 	// "net/url"
-	"strings"
-	"testing"
+	//"strings"
+	//"testing"
 
 	// "github.com/cedrata/jira-helper/pkg/config"
 	// "github.com/stretchr/testify/assert"
