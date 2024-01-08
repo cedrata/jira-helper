@@ -129,7 +129,7 @@ type issue struct {
 
 func (i issue) String() string {
 	return fmt.Sprintf(
-		"key: %s\nassignee: %s,\nstatus: %s,\ndescritpion: %s",
+		"\nkey: %s\nassignee: %s\nstatus: %s\ndescription: %s\n",
 		i.key,
 		i.assignee,
 		i.status,
