@@ -85,9 +85,7 @@ func initConfig() {
 //
 // a flag to select only issues from active sprint is available
 func getStory(cmd *cobra.Command, args []string) error {
-
 	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
-
 	if err != nil {
 		return err
 	}
@@ -114,7 +112,8 @@ func extractIssues(result map[string]interface{}) []issue {
 		assignee := fields["assignee"].(map[string]interface{})["name"].(string)
 		description := fields["description"].(string)
 		status := fields["status"].(map[string]interface{})["name"].(string)
-		res = append(res, issue{key, assignee, description, status})
+		summary :=fields["summary"].(string) 
+		res = append(res, issue{key, assignee, description, status, summary})
 	}
 
 	return res
@@ -125,12 +124,14 @@ type issue struct {
 	assignee    string
 	descritpion string
 	status      string
+	summary     string
 }
 
 func (i issue) String() string {
 	return fmt.Sprintf(
-		"\nkey: %s\nassignee: %s\nstatus: %s\ndescription: %s\n",
+		"\nkey: %s\nsummary:%s\nassignee: %s\nstatus: %s\ndescription: %s\n",
 		i.key,
+		i.summary,
 		i.assignee,
 		i.status,
 		i.descritpion,

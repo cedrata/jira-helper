@@ -74,7 +74,7 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 		urlTemplate, err = getUrlFromTemplate(TemplateUrlSearch, GetIssues, content)
 
 		statements := []string{}
-		fields := []string{"description", "status", "issueKey", "assignee"}
+		fields := []string{"description", "status", "issueKey", "assignee", "summary"}
 		if project, err := flags.GetString("project"); err == nil && project != "" {
 			statements = append(statements, fmt.Sprintf("project=%s", project))
 		}
