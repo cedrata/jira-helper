@@ -25,7 +25,7 @@ var (
 	}
 
 	issuesCmd = &cobra.Command{
-		Use:   "issues [options[--user <user> --status <status>]] --project <project>",
+		Use:   "issues [options[--user=<user> --status=<status>]] --project=<project>",
 		Short: "Get issues for a user and status",
 		Long:  `This create a new agile documentation directory`,
 		RunE:  getStory,
@@ -86,9 +86,6 @@ func initConfig() {
 // a flag to select only issues from active sprint is available
 func getStory(cmd *cobra.Command, args []string) error {
 
-	status, _ := cmd.Flags().GetString("status")
-	fmt.Println(status)
-
 	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
 
 	if err != nil {
@@ -101,6 +98,41 @@ func getStory(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(m["issues"])
+	// fmt.Println(m["issues"])
+	fmt.Println(extractIssues(m))
 	return nil
+}
+
+func extractIssues(result map[string]interface{}) []issue {
+	var issues []interface{}
+	var res []issue
+	issues = result["issues"].([]interface{})
+
+	for k := range issues {
+		fields := issues[k].(map[string]interface{})["fields"].(map[string]interface{})
+		key := issues[k].(map[string]interface{})["key"].(string)
+		assignee := fields["assignee"].(map[string]interface{})["name"].(string)
+		description := fields["description"].(string)
+		status := fields["status"].(map[string]interface{})["name"].(string)
+		res = append(res, issue{key, assignee, description, status})
+	}
+
+	return res
+}
+
+type issue struct {
+	key         string
+	assignee    string
+	descritpion string
+	status      string
+}
+
+func (i issue) String() string {
+	return fmt.Sprintf(
+		"key: %s\nassignee: %s,\nstatus: %s,\ndescritpion: %s",
+		i.key,
+		i.assignee,
+		i.status,
+		i.descritpion,
+	)
 }

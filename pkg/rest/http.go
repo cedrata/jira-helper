@@ -91,8 +91,6 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 			statements = append(statements, fmt.Sprintf("Sprint+in+openSprints()"))
 		}
 
-		fmt.Printf("statements: %s\n", statements)
-
 		query := strings.Join(
 			[]string{
 				strings.Join(
