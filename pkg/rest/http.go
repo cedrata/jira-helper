@@ -109,6 +109,7 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 						strings.Join(fields, ","),
 					}, "=",
 				),
+				"maxResults=70",
 			}, "&",
 		)
 
