@@ -91,6 +91,10 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 			statements = append(statements, fmt.Sprintf("Sprint+in+openSprints()"))
 		}
 
+		if types, err := flags.GetString("type"); err == nil && types != "" {
+			statements = append(statements, "issueType="+types)
+		}
+
 		query := strings.Join(
 			[]string{
 				strings.Join(
@@ -114,6 +118,8 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 				query,
 			}, "?",
 		)
+
+		fmt.Printf("url %s\n", builtUrl)
 
 	default:
 		err = errors.Errorf("unexpected operaion %s", op)

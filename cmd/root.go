@@ -40,6 +40,13 @@ var (
 		Long:  `This create a new agile documentation directory with a presentation and a documentation markdown file`,
 		RunE:  writeStoryTemplate,
 	}
+
+	testsCmd= &cobra.Command{
+		Use:   "tests <file>",
+		Short: "Create a test table with all tests",
+		Long:  `This create a test table in markdown with all tests`,
+		RunE:  writeTestList,
+	}
 )
 
 // Execute executes the root command.
@@ -62,6 +69,9 @@ func init() {
 	newDocCmd.Flags().StringP("user", "u", "AF82260", "user name to filter issues for")
 	newDocCmd.Flags().BoolP("active-sprint", "a", true, "select the issues only in active sprints")
 	rootCmd.AddCommand(newDocCmd)
+
+	testsCmd.Flags().String("type", "test", "select the issue type")
+	rootCmd.AddCommand(testsCmd)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jhelp.config)")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
@@ -110,25 +120,39 @@ func getStory(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func extractIssue(issue interface{}) jira.Issue {
+	var newIssue jira.Issue
+
+	fields := issue.(map[string]interface{})["fields"].(map[string]interface{})
+	newIssue.Key = issue.(map[string]interface{})["key"].(string)
+	
+
+	if  temp, ok := fields["assignee"].(map[string]interface{}); ok { 
+		newIssue.Assignee = temp["name"].(string)
+	}
+
+	if temp, ok := fields["description"].(string); ok {
+		newIssue.Description = temp 
+	}
+
+	if temp, ok := fields["status"].(map[string]interface{}); ok {
+		newIssue.Status = temp["name"].(string)
+	}
+
+	if temp, ok := fields["summary"].(string); ok {
+		newIssue.Summary = temp
+	}
+
+	return newIssue
+}
+
 func extractIssues(result map[string]interface{}) []jira.Issue {
 	var issues []interface{}
 	var res []jira.Issue
 	issues = result["issues"].([]interface{})
 
-	for k := range issues {
-		fields := issues[k].(map[string]interface{})["fields"].(map[string]interface{})
-		key := issues[k].(map[string]interface{})["key"].(string)
-		assignee := fields["assignee"].(map[string]interface{})["name"].(string)
-		description := fields["description"].(string)
-		status := fields["status"].(map[string]interface{})["name"].(string)
-		summary := fields["summary"].(string)
-		res = append(res, jira.Issue{
-			Key:         key,
-			Assignee:    assignee,
-			Description: description,
-			Status:      status,
-			Summary:     summary,
-		})
+	for _, k := range issues {
+		res = append(res, extractIssue(k))
 	}
 
 	return res
@@ -141,19 +165,8 @@ func extractIssuesMap(result map[string]interface{}) map[string]jira.Issue {
 	issues = result["issues"].([]interface{})
 
 	for k := range issues {
-		fields := issues[k].(map[string]interface{})["fields"].(map[string]interface{})
-		key := issues[k].(map[string]interface{})["key"].(string)
-		assignee := fields["assignee"].(map[string]interface{})["name"].(string)
-		description := fields["description"].(string)
-		status := fields["status"].(map[string]interface{})["name"].(string)
-		summary := fields["summary"].(string)
-		res[key] = jira.Issue{
-			Key:         key,
-			Assignee:    assignee,
-			Description: description,
-			Status:      status,
-			Summary:     summary,
-		}
+		issue := extractIssue(k)
+		res[issue.Key] = issue 
 	}
 
 	return res
@@ -202,5 +215,35 @@ func writeStoryTemplate(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("created doc dir %s\n", args[0])
+	return nil
+}
+
+func writeTestList(cmd *cobra.Command, args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("expected  1 args found %d", len(args))
+	}
+	
+	file := args[0]
+
+	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
+	if err != nil {
+		return err
+	}
+
+	m := make(map[string]interface{})
+	err = json.Unmarshal(*resp, &m)
+	if err != nil {
+		return err
+	}
+
+	issues := extractIssues(m)
+
+	testList := jira.TestList{Tests: issues}
+	err = markdown.WriteTestTable(testList, file)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("created test list %s\n", args[0])
 	return nil
 }

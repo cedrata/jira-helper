@@ -34,6 +34,14 @@ const PresTemplate =`
 
 `
 
+const testTableTemplate =`
+Key | Summary
+----|--------:
+{{range .Tests}}
+{{- .Key -}} | {{ .Summary }}
+{{end}}
+`
+
 const DocFileSrc = "doc.md"
 const PresFileSrc = "presentation.md"
 
@@ -59,4 +67,18 @@ func WriteStub(story jira.Issue, file string, template string) error {
 	}
 
 	return parsed.Execute(stream, story)
+}
+
+func WriteTestTable(test jira.TestList, file string) error {
+	parsed, err := TemplatleInstance().Parse(testTableTemplate)
+	if err != nil {
+		return err
+	}
+
+	stream, err := os.OpenFile(file, os.O_CREATE | os.O_WRONLY | os.O_TRUNC, 0622)
+	if err != nil {
+		return err
+	}
+
+	return parsed.Execute(stream, test)
 }
