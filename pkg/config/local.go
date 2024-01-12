@@ -1,12 +1,16 @@
 package config
 
 import (
-	"github.com/pkg/errors"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/spf13/viper"
 )
 
 const (
 	configType = "env"
+    defaultConfigName = ".jhelp.config"
 )
 
 type Config struct {
@@ -15,24 +19,27 @@ type Config struct {
 	Project string `mapstructure:"project"`
 }
 
-func LoadLocalConfig(configDir string, configName string) (*Config, error) {
-	var config Config
+func LoadLocalConfig(configFile string, v *viper.Viper) error {
+	var err error
+    var configPath string
+    var configName string
 
-	v := viper.New()
+	if strings.TrimSpace(configFile) == "" {
+		configPath, err = os.UserHomeDir()
+		configName = defaultConfigName
+	} else {
+		configPath = filepath.Dir(configFile)
+		configName = filepath.Base(configFile)
+    }
 
-	v.SetConfigName(configName)
-	v.SetConfigType(configType)
-	v.AddConfigPath(configDir)
-
-	err := v.ReadInConfig()
-	if err != nil && !errors.As(err, &viper.ConfigFileNotFoundError{}) {
-		return nil, errors.WithStack(err)
-	}
-
-	err = v.Unmarshal(&config)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return err
 	}
 
-	return &config, nil
+    v.AddConfigPath(configPath)
+    v.SetConfigName(configName)
+	v.SetConfigType(configType)
+	err = v.ReadInConfig()
+
+	return err
 }
