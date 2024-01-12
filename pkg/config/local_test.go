@@ -71,7 +71,10 @@ func TestLoadLocalConfig(t *testing.T) {
 
 		expectedKeys := []string{"url", "token", "project"}
 		for i, _ := range expectedKeys {
-			assert.Equal(t, fmt.Sprintf("value%d", i+1), resultConfig.GetString(expectedKeys[i]))
+            key := expectedKeys[i]
+            value := resultConfig.GetString(key)
+            t.Logf("key %s having value: %s", key, value)
+			assert.Equal(t, fmt.Sprintf("value%d", i+1), value)
 		}
 	})
 }

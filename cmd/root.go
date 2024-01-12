@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/cedrata/jira-helper/pkg/config"
+	c "github.com/cedrata/jira-helper/pkg/config"
 	"github.com/cedrata/jira-helper/pkg/jira"
 	"github.com/cedrata/jira-helper/pkg/markdown"
 	"github.com/cedrata/jira-helper/pkg/rest"
@@ -17,32 +17,34 @@ import (
 
 var (
 	// Used for flags.
+	config      *c.Config
 	cfgFile     string
 	userLicense string
-	conf        *config.Config
+	v           *viper.Viper
 
 	rootCmd = &cobra.Command{
-		Use:   "jhelp <command>",
+		Use:   "jhelp [flags] <command> ",
 		Short: "An helper for using JIRA on CLI",
 		Long:  `An helper for using JIRA on CLI`,
 	}
 
 	issuesCmd = &cobra.Command{
-		Use:   "issues [options[--user=<user> --status=<status>]] --project=<project>",
+		Use:   "issues [flags]",
 		Short: "Get issues for a user and status",
-		Long:  `This create a new agile documentation directory`,
+		Long:  `This returns the stories that matches the applied filters`,
 		RunE:  getStory,
 	}
 
 	newDocCmd = &cobra.Command{
-		Use:   "doc <dir> <story id>",
+		Use:   "doc [flags] <dir> <story id>",
 		Short: "Create a new doc directory",
-		Long:  `This create a new agile documentation directory with a presentation and a documentation markdown file`,
-		RunE:  writeStoryTemplate,
+		Long: `This create a new agile documentation directory with a 
+        presentation and a documentation markdown file`,
+		RunE: writeStoryTemplate,
 	}
 
-	testsCmd= &cobra.Command{
-		Use:   "tests <file>",
+	testsCmd = &cobra.Command{
+		Use:   "tests [flags] <file>",
 		Short: "Create a test table with all tests",
 		Long:  `This create a test table in markdown with all tests`,
 		RunE:  writeTestList,
@@ -55,15 +57,19 @@ func Execute() error {
 }
 
 func init() {
-	initConfig()
+	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringP("host", "H", conf.JiraUrl, "jira instance host")
-	rootCmd.PersistentFlags().StringP("token", "t", conf.Token, "jira instance host")
-	rootCmd.PersistentFlags().StringP("project", "p", conf.Project, "jira instance host")
+    v = viper.New()
+	rootCmd.PersistentFlags().StringP("host", "H", "", "jira instance host")
+	v.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
+	rootCmd.PersistentFlags().StringP("token", "t", "", "jira instance token")
+	v.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
+	rootCmd.PersistentFlags().StringP("project", "p", "", "jira project name")
+	v.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
 
 	issuesCmd.Flags().StringP("user", "u", "", "user name to filter issues for")
-	issuesCmd.Flags().StringP("status", "s", "", "jira status to filter fo")
-	issuesCmd.Flags().BoolP("active-sprint", "a", true, "select the issues only in active sprints")
+	issuesCmd.Flags().StringP("status", "s", "", "jira status to filter for")
+	issuesCmd.Flags().BoolP("active-sprint", "a", false, "select the issues only in active sprints")
 	rootCmd.AddCommand(issuesCmd)
 
 	newDocCmd.Flags().StringP("user", "u", "AF82260", "user name to filter issues for")
@@ -73,41 +79,35 @@ func init() {
 	testsCmd.Flags().String("type", "test", "select the issue type")
 	rootCmd.AddCommand(testsCmd)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jhelp.config)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default is $HOME/.jhelp.config)"))
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 	viper.SetDefault("author", "NAME HERE <EMAIL ADDRESS>")
-
 }
 
 func initConfig() {
 	var err error
+	var configFile string
 
-	if cfgFile != "" {
-		// Use config file from the flag.
-		conf, err = config.LoadLocalConfig(cfgFile, ".jhelp.config")
-		cobra.CheckErr(err)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
+	configFile = viper.GetString("config")
+	err = c.LoadLocalConfig(configFile, v)
 
-		conf, err = config.LoadLocalConfig(home, ".jhelp.config")
-		cobra.CheckErr(err)
-	}
+	// If the configuration file is not provided and the default configuration
+	// does not exists then the flag values are used
+    if _, ok := err.(viper.ConfigFileNotFoundError); !ok && configFile == "" {    
+        cobra.CheckErr(err)
+    }
+
+    fmt.Println(v.GetString("host"))
 }
 
-// Get all stories for a project,
-// those can be filtered by:
-//
-//	status
-//	user
-//
-// a flag to select only issues from active sprint is available
 func getStory(cmd *cobra.Command, args []string) error {
-	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
+
+	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, v)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(args)
 
 	m := make(map[string]interface{})
 	err = json.Unmarshal(*resp, &m)
@@ -125,14 +125,13 @@ func extractIssue(issue interface{}) jira.Issue {
 
 	fields := issue.(map[string]interface{})["fields"].(map[string]interface{})
 	newIssue.Key = issue.(map[string]interface{})["key"].(string)
-	
 
-	if  temp, ok := fields["assignee"].(map[string]interface{}); ok { 
+	if temp, ok := fields["assignee"].(map[string]interface{}); ok {
 		newIssue.Assignee = temp["name"].(string)
 	}
 
 	if temp, ok := fields["description"].(string); ok {
-		newIssue.Description = temp 
+		newIssue.Description = temp
 	}
 
 	if temp, ok := fields["status"].(map[string]interface{}); ok {
@@ -166,7 +165,7 @@ func extractIssuesMap(result map[string]interface{}) map[string]jira.Issue {
 
 	for k := range issues {
 		issue := extractIssue(k)
-		res[issue.Key] = issue 
+		res[issue.Key] = issue
 	}
 
 	return res
@@ -176,11 +175,11 @@ func writeStoryTemplate(cmd *cobra.Command, args []string) error {
 	if len(args) < 2 {
 		return fmt.Errorf("expected  2 args found %d", len(args))
 	}
-	
-	dir := args[0]
-	id := args[1] 
 
-	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
+	dir := args[0]
+	id := args[1]
+
+	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, v)
 	if err != nil {
 		return err
 	}
@@ -201,14 +200,14 @@ func writeStoryTemplate(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	
-	err = markdown.WriteStub(story, path.Join(dir, markdown.DocFileSrc), 
+
+	err = markdown.WriteStub(story, path.Join(dir, markdown.DocFileSrc),
 		markdown.DocTemplate)
 	if err != nil {
 		return err
 	}
 
-	err = markdown.WriteStub(story, path.Join(dir, markdown.PresFileSrc), 
+	err = markdown.WriteStub(story, path.Join(dir, markdown.PresFileSrc),
 		markdown.PresTemplate)
 	if err != nil {
 		return err
@@ -222,10 +221,10 @@ func writeTestList(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("expected  1 args found %d", len(args))
 	}
-	
+
 	file := args[0]
 
-	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, cmd.Flags())
+	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, v)
 	if err != nil {
 		return err
 	}

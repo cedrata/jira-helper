@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,11 +10,10 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
-func Get(op Operation, client *http.Client, flags *pflag.FlagSet) (*[]byte, error) {
+func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error) {
 	var payload = []byte("")
 	var err error
 	var url string
@@ -23,12 +23,12 @@ func Get(op Operation, client *http.Client, flags *pflag.FlagSet) (*[]byte, erro
 
 	url, err = operationSwitch(op, flags)
 	if err != nil {
-		return &payload, errors.WithStack(err)
+		return &payload, err
 	}
 
-	token, err = flags.GetString("token")
-	if err != nil {
-		return &payload, err
+	token = flags.GetString("token")
+	if token == "" {
+		return &payload, errors.New("token is missing")
 	}
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
@@ -49,13 +49,13 @@ func Get(op Operation, client *http.Client, flags *pflag.FlagSet) (*[]byte, erro
 
 	payload, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return &payload, errors.WithStack(err)
+		return &payload, err
 	}
 
 	return &payload, nil
 }
 
-func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
+func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 	var builtUrl string
 	var err error
 
@@ -64,9 +64,9 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 		var urlTemplate string
 		var jiraUrl string
 
-		jiraUrl, err = flags.GetString("host")
-		if err != nil {
-			break
+		jiraUrl = flags.GetString("host")
+		if jiraUrl == "" {
+			return "", errors.New("host is not provided, make sure \"host\" is provided with configuration file or flag")
 		}
 
 		content := urlSearch{JiraUrl: jiraUrl}
@@ -75,23 +75,23 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 
 		statements := []string{}
 		fields := []string{"description", "status", "issueKey", "assignee", "summary"}
-		if project, err := flags.GetString("project"); err == nil && project != "" {
+		if project := flags.GetString("project"); project != "" {
 			statements = append(statements, fmt.Sprintf("project=%s", project))
 		}
 
-		if user, err := flags.GetString("user"); err == nil && user != "" {
+		if user := flags.GetString("user"); user != "" {
 			statements = append(statements, fmt.Sprintf("assignee=%s", user))
 		}
 
-		if status, err := flags.GetString("status"); err == nil && status != "" {
+		if status := flags.GetString("status"); status != "" {
 			statements = append(statements, "status="+url.PathEscape("\""+status+"\""))
 		}
 
-		if activeSprint, err := flags.GetBool("active-sprint"); err == nil && activeSprint == true {
+		if activeSprint := flags.GetBool("active-sprint"); activeSprint == true {
 			statements = append(statements, fmt.Sprintf("Sprint+in+openSprints()"))
 		}
 
-		if types, err := flags.GetString("type"); err == nil && types != "" {
+		if types := flags.GetString("type"); types != "" {
 			statements = append(statements, "issueType="+types)
 		}
 
@@ -120,13 +120,11 @@ func operationSwitch(op Operation, flags *pflag.FlagSet) (string, error) {
 			}, "?",
 		)
 
-		fmt.Printf("url %s\n", builtUrl)
-
 	default:
-		err = errors.Errorf("unexpected operaion %s", op)
+		err = fmt.Errorf("unexpected operaion %s", op)
 	}
 
-	return builtUrl, errors.WithStack(err)
+	return builtUrl, err
 }
 
 func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
@@ -134,7 +132,7 @@ func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
 		New(fmt.Sprintf("operation-%s-url", op)).
 		Parse(t)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	buf := new(bytes.Buffer)
