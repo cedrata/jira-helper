@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,11 +27,9 @@ func LoadLocalConfig(configFile string, v *viper.Viper) error {
 	if strings.TrimSpace(configFile) == "" {
 		configPath, err = os.UserHomeDir()
 		configName = defaultConfigName
-        fmt.Println("from default")
 	} else {
 		configPath = filepath.Dir(configFile)
 		configName = filepath.Base(configFile)
-        fmt.Println("from provided")
     }
 
 	if err != nil {
@@ -43,7 +40,6 @@ func LoadLocalConfig(configFile string, v *viper.Viper) error {
     v.SetConfigName(configName)
 	v.SetConfigType(configType)
 	err = v.ReadInConfig()
-    fmt.Println(v.GetString("host"))
 
 	return err
 }
