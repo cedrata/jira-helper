@@ -19,6 +19,9 @@ type Config struct {
 	Project string `mapstructure:"project"`
 }
 
+// Loads a configuration file.
+// If no configuration file is provided the default one is loaded.
+// Returns an error if the file is not available.
 func LoadLocalConfig(configFile string, v *viper.Viper) error {
 	var err error
     var configPath string
