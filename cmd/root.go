@@ -80,7 +80,7 @@ func extractIssue(issue interface{}) jira.Issue {
 	return newIssue
 }
 
-func extractIssues(result map[string]interface{}) []jira.Issue {
+func extractIssues(result map[string]interface{}) jira.Issues {
 	var issues []interface{}
 	var res []jira.Issue
 	issues = result["issues"].([]interface{})
