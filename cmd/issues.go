@@ -74,14 +74,14 @@ func getStory(cmd *cobra.Command, args []string) error {
 
 	}
 
-    // If the output flag is not provided print to stdout then quit.
-    // Trying to keep the early return to prevent too many indentations.
+	// If the output flag is not provided print to stdout then quit.
+	// Trying to keep the early return to prevent too many indentations.
 	if absoluteOutput == "" {
 		_, err = fmt.Println(extractIssues(m))
 		return err
 	}
 
-    // Otherwise print to file
+	// Otherwise print to file
 	buf, err = markdown.GenerateIssuesMarkdown(
 		&markdown.Summary{
 			Name:   filepath.Base(absoluteOutput),
