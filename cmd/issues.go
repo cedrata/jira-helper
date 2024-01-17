@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
+	"github.com/cedrata/jira-helper/pkg/markdown"
 	"github.com/cedrata/jira-helper/pkg/rest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -22,7 +25,7 @@ func init() {
 
 	issuesCmd.Flags().StringP("user", "u", "", "user name to filter issues for")
 	issuesCmd.Flags().StringP("status", "s", "", "jira status to filter for")
-	issuesCmd.Flags().StringP("output", "o", "", "store the result into the specified file")
+	issuesCmd.Flags().StringP("output", "o", "", "store the result into a markdown file having the given output name")
 	issuesCmd.Flags().BoolP("active-sprint", "a", true, "select the issues only in active sprints")
 
 	viper.BindPFlag("user", issuesCmd.Flags().Lookup("user"))
@@ -33,9 +36,30 @@ func init() {
 	rootCmd.AddCommand(issuesCmd)
 }
 
-// Add workflow to incorporate the `writeStoryTemplate` function into this one
 func getStory(cmd *cobra.Command, args []string) error {
-	resp, err := rest.Get(rest.GetIssues, http.DefaultClient, viper.GetViper())
+	var err error
+	var resp *[]byte
+	var absoluteOutput string
+	var file *os.File
+	var buf []byte
+
+	if viper.GetString("output") != "" {
+		absoluteOutput, err = filepath.Abs(viper.GetString("output"))
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if absoluteOutput != "" {
+		file, err = os.OpenFile(absoluteOutput, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0622)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	resp, err = rest.Get(rest.GetIssues, http.DefaultClient, viper.GetViper())
 	if err != nil {
 		return err
 	}
@@ -46,6 +70,31 @@ func getStory(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(extractIssues(m))
-	return nil
+	if viper.GetString("output") == "" {
+
+	}
+
+	// If the output flag is not provided print to stdout then quit.
+	// Trying to keep the early return to prevent too many indentations.
+	if absoluteOutput == "" {
+		_, err = fmt.Println(extractIssues(m))
+		return err
+	}
+
+	// Otherwise print to file
+	buf, err = markdown.GenerateIssuesMarkdown(
+		&markdown.Summary{
+			Name:   filepath.Base(absoluteOutput),
+			Issues: extractIssues(m),
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(buf)
+	if err != nil {
+		return err
+	}
+	return err
 }
