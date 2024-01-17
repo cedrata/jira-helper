@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -42,7 +41,7 @@ func getStory(cmd *cobra.Command, args []string) error {
 	var resp *[]byte
 	var absoluteOutput string
 	var file *os.File
-	var buf *bytes.Buffer
+	var buf []byte
 
 	if viper.GetString("output") != "" {
 		absoluteOutput, err = filepath.Abs(viper.GetString("output"))
@@ -93,7 +92,7 @@ func getStory(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	_, err = file.Write(buf.Bytes())
+	_, err = file.Write(buf)
 	if err != nil {
 		return err
 	}

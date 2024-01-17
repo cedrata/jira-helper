@@ -102,7 +102,7 @@ func WriteTestTable(test jira.TestList, file string) error {
 	return parsed.Execute(stream, test)
 }
 
-func GenerateIssuesMarkdown(summary *Summary) (*bytes.Buffer, error) {
+func GenerateIssuesMarkdown(summary *Summary) ([]byte, error) {
 	parsed, err := TemplatleInstance().Parse(summaryTemplate)
 	if err != nil {
 		return nil, err
@@ -110,5 +110,5 @@ func GenerateIssuesMarkdown(summary *Summary) (*bytes.Buffer, error) {
 
 	buf := new(bytes.Buffer)
 	parsed.Execute(buf, summary)
-	return buf, nil
+	return buf.Bytes(), nil
 }

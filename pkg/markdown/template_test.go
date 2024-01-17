@@ -91,7 +91,7 @@ A longer and more hexaustive description for second issue
 		t.Run(current.name, func(t *testing.T) {
 			actual, err := GenerateIssuesMarkdown(&current.input)
 			assert.NoError(t, err)
-			assert.Equal(t, current.expected, actual.String())
+			assert.Equal(t, current.expected, actual)
 		})
 	}
 }
