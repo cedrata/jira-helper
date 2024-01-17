@@ -89,7 +89,7 @@ A longer and more hexaustive description for second issue
 	for test := range tests {
 		current := tests[test]
 		t.Run(current.name, func(t *testing.T) {
-			actual, err := GenerateIssuesString(&current.input)
+			actual, err := GenerateIssuesMarkdown(&current.input)
 			assert.NoError(t, err)
 			assert.Equal(t, current.expected, actual.String())
 		})
