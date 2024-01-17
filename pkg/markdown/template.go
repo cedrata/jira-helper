@@ -1,13 +1,15 @@
 package markdown
 
 import (
+	"bytes"
 	"os"
+	"sync"
 	"text/template"
 
 	"github.com/cedrata/jira-helper/pkg/jira"
 )
 
-const DocTemplate =`
+const DocTemplate = `
 # {{.Summary}} {{.Key}}
 
 {{.Description}}
@@ -19,7 +21,7 @@ const DocTemplate =`
 ### Bibliography
 `
 
-const PresTemplate =`
+const PresTemplate = `
 # {{.Summary}} {{.Key}}
 
 {{.Description}}
@@ -34,7 +36,7 @@ const PresTemplate =`
 
 `
 
-const testTableTemplate =`
+const testTableTemplate = `
 Key | Summary
 ----|--------:
 {{range .Tests}}
@@ -42,16 +44,33 @@ Key | Summary
 {{end}}
 `
 
+const summaryTemplate = `# {{.Name}}
+{{range .Issues}}
+## {{.Key}} - {{.Summary}}
+
+### description
+{{.Description}}
+
+### conclusion/tests
+
+{{end}}
+`
+
+type Summary struct {
+	Issues jira.Issues
+	Name   string
+}
+
 const DocFileSrc = "doc.md"
 const PresFileSrc = "presentation.md"
 
-
 var tmpl *template.Template
+var tmplOnce sync.Once
 
-func TemplatleInstance() *template.Template{
-	if tmpl == nil {
+func TemplatleInstance() *template.Template {
+	tmplOnce.Do(func() {
 		tmpl = template.New("test")
-	}
+	})
 	return tmpl
 }
 
@@ -61,7 +80,7 @@ func WriteStub(story jira.Issue, file string, template string) error {
 		return err
 	}
 
-	stream, err := os.OpenFile(file, os.O_CREATE | os.O_WRONLY | os.O_TRUNC, 0622)
+	stream, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0622)
 	if err != nil {
 		return err
 	}
@@ -75,10 +94,21 @@ func WriteTestTable(test jira.TestList, file string) error {
 		return err
 	}
 
-	stream, err := os.OpenFile(file, os.O_CREATE | os.O_WRONLY | os.O_TRUNC, 0622)
+	stream, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0622)
 	if err != nil {
 		return err
 	}
 
 	return parsed.Execute(stream, test)
+}
+
+func GenerateIssuesString(summary *Summary) (*bytes.Buffer, error) {
+	parsed, err := TemplatleInstance().Parse(summaryTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := new(bytes.Buffer)
+	parsed.Execute(buf, summary)
+	return buf, nil
 }
