@@ -1,14 +1,12 @@
 package rest
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
-	"text/template"
 
 	"github.com/spf13/viper"
 )
