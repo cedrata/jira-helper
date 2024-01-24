@@ -70,10 +70,6 @@ func getStory(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if viper.GetString("output") == "" {
-
-	}
-
 	// If the output flag is not provided print to stdout then quit.
 	// Trying to keep the early return to prevent too many indentations.
 	if absoluteOutput == "" {
