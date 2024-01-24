@@ -87,8 +87,8 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 			statements = append(statements, "status="+url.PathEscape("\""+status+"\""))
 		}
 
-		if activeSprint := flags.GetBool("active-sprint"); activeSprint == true {
-			statements = append(statements, fmt.Sprintf("Sprint+in+openSprints()"))
+		if activeSprint := flags.GetBool("active-sprint"); activeSprint {
+			statements = append(statements, "Sprint+in+openSprints()")
 		}
 
 		if types := flags.GetString("type"); types != "" {
