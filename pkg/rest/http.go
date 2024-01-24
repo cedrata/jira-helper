@@ -30,6 +30,10 @@ func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error)
 	}
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return &payload, err
+	}
+
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", JSONContentType)
 	resp, err = client.Do(req)
@@ -53,6 +57,12 @@ func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error)
 	return &payload, nil
 }
 
+// func Post(op Operation, client *http.Client, flags *viper.Viper, body *[]byte) (*[]byte, error) {
+//     var payload = []byte("")
+//     var err error
+//     var url string
+// }
+
 func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 	var builtUrl string
 	var err error
@@ -60,17 +70,14 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 	switch op {
 	case GetIssues:
 		var urlTemplate string
-		var jiraUrl string
+		var host string
 
-		jiraUrl = flags.GetString("host")
-		if jiraUrl == "" {
+		host = flags.GetString("host")
+		if host == "" {
 			return "", errors.New("host is not provided, make sure \"host\" is provided with configuration file or flag")
 		}
 
-		content := urlSearch{JiraUrl: jiraUrl}
-
-		urlTemplate, err = getUrlFromTemplate(TemplateUrlSearch, GetIssues, content)
-
+		urlTemplate = fmt.Sprintf("https://%s/rest/api/2/search", host)
 		statements := []string{}
 		fields := []string{"description", "status", "issueKey", "assignee", "summary"}
 		if project := flags.GetString("project"); project != "" {
@@ -119,30 +126,16 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 		)
 
 	case GetTransitions:
-        builtUrl, err = transitionUrl(flags)
+		builtUrl, err = transitionUrl(flags)
 
 	case PostTransitions:
-        builtUrl, err = transitionUrl(flags)
+		builtUrl, err = transitionUrl(flags)
 
 	default:
 		err = fmt.Errorf("unexpected operaion %s", op)
 	}
 
 	return builtUrl, err
-}
-
-func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
-	urlTemplate, err := template.
-		New(fmt.Sprintf("operation-%s-url", op)).
-		Parse(t)
-	if err != nil {
-		return "", err
-	}
-
-	buf := new(bytes.Buffer)
-	urlTemplate.Execute(buf, content)
-	url := buf.String()
-	return url, nil
 }
 
 func transitionUrl(v *viper.Viper) (string, error) {
