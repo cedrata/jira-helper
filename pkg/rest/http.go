@@ -120,6 +120,12 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 			}, "?",
 		)
 
+	case GetTransitions:
+        builtUrl, err = transitionUrl(flags)
+
+	case PostTransitions:
+        builtUrl, err = transitionUrl(flags)
+
 	default:
 		err = fmt.Errorf("unexpected operaion %s", op)
 	}
@@ -139,4 +145,21 @@ func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
 	urlTemplate.Execute(buf, content)
 	url := buf.String()
 	return url, nil
+}
+
+func transitionUrl(v *viper.Viper) (string, error) {
+	var host string
+	var issueKey string
+
+	host = v.GetString("host")
+	if host == "" {
+		return "", errors.New("host is not provided, make sure \"host\" is provided with configuration file or flag")
+	}
+
+	issueKey = v.GetString("key")
+	if issueKey == "" {
+		return "", errors.New("key is not provided, make sure \"key\" is provided with configuration file or flag")
+	}
+
+	return fmt.Sprintf("https://%s/rest/api/2/issue/%s/transitions", host, issueKey), nil
 }
