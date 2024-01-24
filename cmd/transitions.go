@@ -19,8 +19,12 @@ func init() {
 	transitionsCmd.Flags().String("key", "", "issue key to get or set transitions for")
 	transitionsCmd.Flags().String("to-transition", "", "if provided try to set the issue to the given transition id")
 
+    _ = transitionsCmd.MarkFlagRequired("key")
+
 	viper.BindPFlag("key", issuesCmd.Flags().Lookup("key"))
 	viper.BindPFlag("to-transition", issuesCmd.Flags().Lookup("to-transition"))
+
+    rootCmd.AddCommand(transitionsCmd)
 }
 
 func handleTransitions(cmd *cobra.Command, args []string) error {
