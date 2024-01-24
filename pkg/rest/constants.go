@@ -1,10 +1,10 @@
 package rest
 
 const (
-	JSONContentType   = "application/json"
-	TemplateUrlSearch = "https://{{.JiraUrl}}/rest/api/2/search"
-)
+	JSONContentType = "application/json"
 
-const (
-	GetIssues Operation = "get-issues"
+    // Available operations
+	GetIssues       Operation = "get-issues"
+	GetTransitions  Operation = "get-transitions"
+	PostTransitions Operation = "post-transitions"
 )
