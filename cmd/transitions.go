@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/cedrata/jira-helper/pkg/rest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -19,16 +23,19 @@ func init() {
 	transitionsCmd.Flags().String("key", "", "issue key to get or set transitions for")
 	transitionsCmd.Flags().String("to-transition", "", "if provided try to set the issue to the given transition id")
 
-    _ = transitionsCmd.MarkFlagRequired("key")
+    _ = viper.BindPFlag("key", transitionsCmd.Flags().Lookup("key"))
+    _ = viper.BindPFlag("to-transition", transitionsCmd.Flags().Lookup("to-transition"))
 
-	viper.BindPFlag("key", issuesCmd.Flags().Lookup("key"))
-	viper.BindPFlag("to-transition", issuesCmd.Flags().Lookup("to-transition"))
-
-    rootCmd.AddCommand(transitionsCmd)
+	rootCmd.AddCommand(transitionsCmd)
 }
 
 func handleTransitions(cmd *cobra.Command, args []string) error {
-    // If to-transition == "" then GET
-    // Else POST
-	return nil
+	// If to-transition == "" then GET
+	// Else POST
+	fmt.Printf("returning possible transitions for issue having id %s\n", viper.GetString("key"))
+	resp, err := rest.Get(rest.GetTransitions, http.DefaultClient, viper.GetViper())
+	if err != nil {
+		fmt.Printf("%s", *resp)
+	}
+	return err
 }

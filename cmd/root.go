@@ -31,10 +31,10 @@ func init() {
 	rootCmd.PersistentFlags().StringP("project", "p", "", "jira project name")
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jhelp.config)")
 
-	viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
-	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-	viper.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
-	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
+	_ = viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
+    _ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
+    _ = viper.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
+    _ = viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 }
 
 func initConfig() {
