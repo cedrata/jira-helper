@@ -28,10 +28,10 @@ func init() {
 	issuesCmd.Flags().StringP("output", "o", "", "store the result into a markdown file having the given output name")
 	issuesCmd.Flags().BoolP("active-sprint", "a", true, "select the issues only in active sprints")
 
-    _ = viper.BindPFlag("user", issuesCmd.Flags().Lookup("user"))
-    _ = viper.BindPFlag("status", issuesCmd.Flags().Lookup("status"))
-    _ = viper.BindPFlag("output", issuesCmd.Flags().Lookup("output"))
-    _ = viper.BindPFlag("active-sprint", issuesCmd.Flags().Lookup("active-sprint"))
+	_ = viper.BindPFlag("user", issuesCmd.Flags().Lookup("user"))
+	_ = viper.BindPFlag("status", issuesCmd.Flags().Lookup("status"))
+	_ = viper.BindPFlag("output", issuesCmd.Flags().Lookup("output"))
+	_ = viper.BindPFlag("active-sprint", issuesCmd.Flags().Lookup("active-sprint"))
 
 	rootCmd.AddCommand(issuesCmd)
 }

@@ -23,8 +23,8 @@ func init() {
 	transitionsCmd.Flags().String("key", "", "issue key to get or set transitions for")
 	transitionsCmd.Flags().String("to-transition", "", "if provided try to set the issue to the given transition id")
 
-    _ = viper.BindPFlag("key", transitionsCmd.Flags().Lookup("key"))
-    _ = viper.BindPFlag("to-transition", transitionsCmd.Flags().Lookup("to-transition"))
+	_ = viper.BindPFlag("key", transitionsCmd.Flags().Lookup("key"))
+	_ = viper.BindPFlag("to-transition", transitionsCmd.Flags().Lookup("to-transition"))
 
 	rootCmd.AddCommand(transitionsCmd)
 }
