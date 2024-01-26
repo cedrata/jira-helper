@@ -3,3 +3,6 @@ bin/
 
 # Result of coverage
 cover.out
+
+# Debug folder
+.vscode
