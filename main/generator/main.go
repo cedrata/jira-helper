@@ -8,8 +8,11 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"path/filepath"
 	"strings"
 )
+
+
 
 func main() {
 	if len(os.Args) != 2 {
@@ -37,6 +40,7 @@ func main() {
 						// Check if the struct has the specified name
 						if typeSpec.Name.Name == structName {
 							// Generate code based on the struct
+                            fmt.Println(filepath.Abs(fset.Position(typeSpec.Pos()).Filename))
 							generatedCode := generateCode(structName, structType)
 							fmt.Println(generatedCode)
 							os.Exit(0)
