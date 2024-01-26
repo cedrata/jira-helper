@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
+	"github.com/cedrata/jira-helper/pkg/jira"
 	"github.com/cedrata/jira-helper/pkg/rest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,12 +33,27 @@ func init() {
 }
 
 func handleTransitions(cmd *cobra.Command, args []string) error {
-	// If to-transition == "" then GET
-	// Else POST
-	fmt.Printf("returning possible transitions for issue having id %s\n", viper.GetString("key"))
-	resp, err := rest.Get(rest.GetTransitions, http.DefaultClient, viper.GetViper())
-	if err != nil {
-		fmt.Printf("%s", *resp)
+	var err error
+	var resp *[]byte
+
+	if viper.GetString("to-transition") == "" {
+		fmt.Printf("returning possible transitions for issue having id %s\n", viper.GetString("key"))
+		resp, err = rest.Get(rest.GetTransitions, http.DefaultClient, viper.GetViper())
+	} else {
+		return errors.New("Operation PostTransitions not implemented yet")
 	}
-	return err
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s", *resp)
+	var transitions jira.GetTransitionResponse
+	if err = json.Unmarshal(*resp, &transitions); err != nil {
+		return err
+	}
+
+	fmt.Println(transitions.Transitions)
+
+	return nil
 }

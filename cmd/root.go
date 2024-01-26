@@ -32,9 +32,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jhelp.config)")
 
 	_ = viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
-    _ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-    _ = viper.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
-    _ = viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
+	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
+	_ = viper.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
+	_ = viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 }
 
 func initConfig() {

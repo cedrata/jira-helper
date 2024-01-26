@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error) {
+func Get(op Operation, client *http.Client, v *viper.Viper) (*[]byte, error) {
 	var payload = []byte("")
 	var err error
 	var url string
@@ -19,12 +19,12 @@ func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error)
 	var req *http.Request
 	var resp *http.Response
 
-	url, err = operationSwitch(op, flags)
+	url, err = operationSwitch(op, v)
 	if err != nil {
 		return &payload, err
 	}
 
-	token = flags.GetString("token")
+	token = v.GetString("token")
 	if token == "" {
 		return &payload, errors.New("token is missing")
 	}
@@ -63,7 +63,7 @@ func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error)
 //     var url string
 // }
 
-func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
+func operationSwitch(op Operation, v *viper.Viper) (string, error) {
 	var builtUrl string
 	var err error
 
@@ -72,7 +72,7 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 		var urlTemplate string
 		var host string
 
-		host = flags.GetString("host")
+		host = v.GetString("host")
 		if host == "" {
 			return "", errors.New("host is not provided, make sure \"host\" is provided with configuration file or flag")
 		}
@@ -80,23 +80,23 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 		urlTemplate = fmt.Sprintf("https://%s/rest/api/2/search", host)
 		statements := []string{}
 		fields := []string{"description", "status", "issueKey", "assignee", "summary"}
-		if project := flags.GetString("project"); project != "" {
+		if project := v.GetString("project"); project != "" {
 			statements = append(statements, fmt.Sprintf("project=%s", project))
 		}
 
-		if user := flags.GetString("user"); user != "" {
+		if user := v.GetString("user"); user != "" {
 			statements = append(statements, fmt.Sprintf("assignee=%s", user))
 		}
 
-		if status := flags.GetString("status"); status != "" {
+		if status := v.GetString("status"); status != "" {
 			statements = append(statements, "status="+url.PathEscape("\""+status+"\""))
 		}
 
-		if activeSprint := flags.GetBool("active-sprint"); activeSprint {
+		if activeSprint := v.GetBool("active-sprint"); activeSprint {
 			statements = append(statements, "Sprint+in+openSprints()")
 		}
 
-		if types := flags.GetString("type"); types != "" {
+		if types := v.GetString("type"); types != "" {
 			statements = append(statements, "issueType="+types)
 		}
 
@@ -126,10 +126,10 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 		)
 
 	case GetTransitions:
-		builtUrl, err = transitionUrl(flags)
+		builtUrl, err = transitionsUrl(v)
 
 	case PostTransitions:
-		builtUrl, err = transitionUrl(flags)
+		builtUrl, err = transitionsUrl(v)
 
 	default:
 		err = fmt.Errorf("unexpected operaion %s", op)
@@ -138,7 +138,7 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 	return builtUrl, err
 }
 
-func transitionUrl(v *viper.Viper) (string, error) {
+func transitionsUrl(v *viper.Viper) (string, error) {
 	var host string
 	var issueKey string
 
