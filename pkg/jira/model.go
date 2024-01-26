@@ -46,7 +46,7 @@ type GetTransitionResponse struct {
 	Transitions []IssueTransition `json:"transitions"`
 }
 
-//go:generate go run ../../main/generator IssueTransition
+//go:generate go run ../../main/generator -struct IssueTransition -unmarshal
 type IssueTransition struct {
 	// Expand options that include additional transition details in the response.
 	Expand string `json:"expand"`
@@ -87,7 +87,7 @@ type IssueTransition struct {
 	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-//go:generate go run ../../main/generator StatusDetails
+//go:generate go run ../../main/generator -struct StatusDetails  -unmarshal
 type StatusDetails struct {
 	// The description of the status.
 	Description string `json:"description"`
