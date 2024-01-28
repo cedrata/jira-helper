@@ -1,48 +1,48 @@
-// // UnmarshallJSON customizes the JSON unmarshaling for IssueTransition
-// func (it *IssueTransition) UnmarshallJSON(data []byte) error {
-// 	// The reason for using this approach is to avoid an infinite loop during
-// 	// JSON unmarshaling. When unmarshaling JSON into this struct, the
-// 	// UnmarshalJSON method is called. Without the alias and embedded
-// 	// struct, it would call itself recursively, leading to a stack overflow.
-// 
-// 	// By using an alias and an embedded struct, we break the recursion,
-// 	// and the UnmarshalJSON method can be applied to the embedded
-// 	// *Alias field without triggering another call to the same method.
-// 	type Alias IssueTransition
-// 	aux := &struct {
-// 		*Alias
-// 	}{
-// 		Alias: (*Alias)(it),
-// 	}
-// 
-// 	if err := json.Unmarshal(data, &aux); err != nil {
-// 		return err
-// 	}
-// 
-// 	var m map[string]interface{}
-// 	if err := json.Unmarshal(data, &m); err != nil {
-// 		return err
-// 	}
-// 
-// 	it.AdditionalProperties = make(map[string]interface{})
-// 	for key, value := range m {
-// 		switch key {
-// 		case "expand",
-// 			"fields",
-// 			"hasScreen",
-// 			"id",
-// 			"isAvailable",
-// 			"isConditional",
-// 			"isGlobal",
-//             "isInitial",
-//             "looped",
-//             "name",
-//             "to":
-// 			// Skip known fields
-// 		default:
-// 			it.AdditionalProperties[key] = value
-// 		}
-// 	}
-// 
-// 	return nil
-// }
+// UnmarshallJSON customizes the JSON unmarshaling for IssueTransition
+func (it *IssueTransition) UnmarshallJSON(data []byte) error {
+	// The reason for using this approach is to avoid an infinite loop during
+	// JSON unmarshaling. When unmarshaling JSON into this struct, the
+	// UnmarshalJSON method is called. Without the alias and embedded
+	// struct, it would call itself recursively, leading to a stack overflow.
+
+	// By using an alias and an embedded struct, we break the recursion,
+	// and the UnmarshalJSON method can be applied to the embedded
+	// *Alias field without triggering another call to the same method.
+	type Alias IssueTransition
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(it),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return err
+	}
+
+	it.AdditionalProperties = make(map[string]interface{})
+	for key, value := range m {
+		switch key {
+		case "expand",
+			"fields",
+			"hasScreen",
+			"id",
+			"isAvailable",
+			"isConditional",
+			"isGlobal",
+            "isInitial",
+            "looped",
+            "name",
+            "to":
+			// Skip known fields
+		default:
+			it.AdditionalProperties[key] = value
+		}
+	}
+
+	return nil
+}

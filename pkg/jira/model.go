@@ -46,7 +46,7 @@ type GetTransitionResponse struct {
 	Transitions []IssueTransition `json:"transitions"`
 }
 
-//go:generate go run ../../main/generator -struct IssueTransition -unmarshal
+//go:generate go run ../../main/generator -struct IssueTransition -unmarshal -destination ./StatusDetails_gen.go
 type IssueTransition struct {
 	// Expand options that include additional transition details in the response.
 	Expand string `json:"expand"`
@@ -60,7 +60,7 @@ type IssueTransition struct {
 
 	// The ID of the issue transition.
 	// Required when specifying a transition to undertake.
-	Id string `json:"id"`
+	Id strPing `json:"id"`
 
 	// Whether the transition is available to be performed.
 	IsAvailable bool `json:"isAvailable"`
@@ -87,7 +87,7 @@ type IssueTransition struct {
 	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-//go:generate go run ../../main/generator -struct StatusDetails  -unmarshal
+//go:generate go run ../../main/generator -struct StatusDetails  -unmarshal -destination ./StatusDetails_gen.go
 type StatusDetails struct {
 	// The description of the status.
 	Description string `json:"description"`
