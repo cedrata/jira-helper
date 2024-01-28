@@ -1,5 +1,3 @@
-// generator.go
-
 package main
 
 import (
@@ -172,10 +170,6 @@ func generateCode(structName string, structType *ast.StructType, filename string
 
 	return string(formattedCode)
 }
-
-// func generateCommonCode(packages string) []byte {
-//
-// }
 
 func generateUnmarshalCode(structName string, knownProperties []string) []byte {
 	var buf bytes.Buffer
