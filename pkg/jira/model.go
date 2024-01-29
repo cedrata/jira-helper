@@ -60,7 +60,7 @@ type IssueTransition struct {
 
 	// The ID of the issue transition.
 	// Required when specifying a transition to undertake.
-	Id strPing `json:"id"`
+	Id string `json:"id"`
 
 	// Whether the transition is available to be performed.
 	IsAvailable bool `json:"isAvailable"`
