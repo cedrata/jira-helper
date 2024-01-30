@@ -45,6 +45,12 @@ func init() {
 
 func main() {
 	fullPath, _ := filepath.Abs(os.Getenv("GOFILE"))
+	fullPathDestinationDir := filepath.Dir(fullPath)
+	_, err := os.Stat(fullPathDestinationDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		os.Exit(1)
+	}
 
 	fset := token.NewFileSet()
 	parsedFile, _ := parser.ParseFile(fset, fullPath, nil, parser.ParseComments)
@@ -117,6 +123,7 @@ func main() {
 
 	code := generateCodeSteps(
 		generateHeader,
+		generatePackageGenerator(os.Getenv("GOPACKAGE")),
 		generateImportGenerator([]string{"encoding/json"}),
 		generateUnmarshalCodeGenerator(structName, knownProperties),
 	)
@@ -128,7 +135,21 @@ func main() {
 	}
 
 	fmt.Printf("%s\n", formattedCode)
-    // @TODO: Save formatted code to the specified destination path...
+
+	// fullPathDestinationDir
+	fullPathDestination := filepath.Join(fullPathDestinationDir, fmt.Sprintf("%s_generated.go", structName))
+	destinatioFile, err := os.OpenFile(fullPathDestination, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	defer func() {
+		err := destinatioFile.Close()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s", err)
+		}
+	}()
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		os.Exit(1)
+	}
 }
 
 type step func() []byte
@@ -145,6 +166,12 @@ func generateCodeSteps(steps ...step) []byte {
 
 func generateHeader() []byte {
 	return []byte(fmt.Sprintf("%s\n", header))
+}
+
+func generatePackageGenerator(packageName string) step {
+	return func() []byte {
+		return []byte(fmt.Sprintf("package %s\n\n", packageName))
+	}
 }
 
 func generateImportGenerator(imports []string) step {
@@ -173,7 +200,7 @@ func generateUnmarshalCodeGenerator(structName string, knownProperties []string)
 		KnownProperties: knownProperties,
 	}
 
-	unmarshalTemplate := `func (s {{.StructName}}) UnmarshallJSON(data []byte) error {
+	unmarshalTemplate := `func (s *{{.StructName}}) UnmarshallJSON(data []byte) error {
     // The reason for using this approach is to avoid an infinite loop during
     // JSON unmarshaling. When unmarshaling JSON into this struct, the
     // UnmarshalJSON method is called. Without the alias and embedded
@@ -183,10 +210,11 @@ func generateUnmarshalCodeGenerator(structName string, knownProperties []string)
     // and the UnmarshalJSON method can be applied to the embedded
     // *Alias field without triggering another call to the same method.
 
+    type Alias {{.StructName}}
 	aux := &struct {
 		*Alias
 	}{
-		Alias: (*Alias)(it),
+		Alias: (*Alias)(s),
 	}
 
 	if err := json.Unmarshal(data, &aux); err != nil {
