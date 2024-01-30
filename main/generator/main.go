@@ -134,9 +134,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("%s\n", formattedCode)
-
-	// fullPathDestinationDir
 	fullPathDestination := filepath.Join(fullPathDestinationDir, fmt.Sprintf("%s_generated.go", structName))
 	destinatioFile, err := os.OpenFile(fullPathDestination, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	defer func() {
@@ -150,6 +147,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		os.Exit(1)
 	}
+
+	fmt.Fprintf(destinatioFile, "%s", formattedCode)
 }
 
 type step func() []byte
