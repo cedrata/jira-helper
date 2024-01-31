@@ -84,7 +84,7 @@ func main() {
 
 			tagValue := reflect.StructTag(field.Tag.Value[1 : len(field.Tag.Value)-1])
 
-			jsonKey := tagValue.Get("json")
+			jsonKey := strings.Split(tagValue.Get("json"), ",")[0]
 
 			if jsonKey == "" {
 				errs = errors.Join(errs, fmt.Errorf("in %s struct, JSON tag is not set for the %v field", structName, field.Names))
