@@ -22,24 +22,21 @@ var (
 	structName string
 	unmarshal  bool
 	// marshal     bool
-	destination string
+	// destination string
 )
 
 func init() {
 	flag.StringVar(&structName, "struct", "", "Name of the struct to process")
-	flag.StringVar(&destination, "destination", "", "Name of the struct to process")
+    // At the moment not required, the destination must be in the same package
+	// flag.StringVar(&destination, "destination", "", "Name of the struct to process")
 	flag.BoolVar(&unmarshal, "unmarshal", false, "Set to true to generate the unmarshal stub")
 	// Not required at the moment, when required remove comment
 	// flag.BoolVar(&marshal, "marshal", false, "Set to true to generate the marshal stub")
 	flag.Parse()
 
-	if structName == "" || !unmarshal || destination == "" {
+	if structName == "" || !unmarshal {
 		fmt.Fprintf(os.Stderr, "Usage: %s -struct <struct_name> -unmarshal -destination <relative_destintion_path>\n", os.Args[0])
 		os.Exit(1)
-	}
-
-	if filepath.IsAbs(destination) {
-		fmt.Fprintf(os.Stderr, "The destination path should be a relative path\n")
 	}
 }
 
@@ -199,7 +196,7 @@ func generateUnmarshalCodeGenerator(structName string, knownProperties []string)
 		KnownProperties: knownProperties,
 	}
 
-	unmarshalTemplate := `func (s *{{.StructName}}) UnmarshallJSON(data []byte) error {
+	unmarshalTemplate := `func (s *{{.StructName}}) UnmarshalJSON(data []byte) error {
     // The reason for using this approach is to avoid an infinite loop during
     // JSON unmarshaling. When unmarshaling JSON into this struct, the
     // UnmarshalJSON method is called. Without the alias and embedded
@@ -254,7 +251,3 @@ func generateUnmarshalCodeGenerator(structName string, knownProperties []string)
 		return buf.Bytes()
 	}
 }
-
-// func canGenerateUnmarshall(isAdditionalPropertiesDeclared) bool {
-//     return
-// }
