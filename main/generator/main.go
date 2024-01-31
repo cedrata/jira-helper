@@ -135,7 +135,7 @@ func main() {
 	}
 
 	fullPathDestination := filepath.Join(fullPathDestinationDir, fmt.Sprintf("%s_generated.go", structName))
-	destinatioFile, err := os.OpenFile(fullPathDestination, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	destinatioFile, err := os.OpenFile(fullPathDestination, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	defer func() {
 		err := destinatioFile.Close()
 		if err != nil {
