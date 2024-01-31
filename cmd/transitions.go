@@ -24,10 +24,10 @@ func init() {
 	}
 
 	transitionsCmd.Flags().String("key", "", "issue key to get or set transitions for")
-	transitionsCmd.Flags().String("to-transition", "", "if provided try to set the issue to the given transition id")
+	transitionsCmd.Flags().String("to", "", "if provided try to set the issue to the given transition id")
 
 	_ = viper.BindPFlag("key", transitionsCmd.Flags().Lookup("key"))
-	_ = viper.BindPFlag("to-transition", transitionsCmd.Flags().Lookup("to-transition"))
+	_ = viper.BindPFlag("to", transitionsCmd.Flags().Lookup("to-transition"))
 
 	rootCmd.AddCommand(transitionsCmd)
 }
@@ -36,7 +36,7 @@ func handleTransitions(cmd *cobra.Command, args []string) error {
 	var err error
 	var resp *[]byte
 
-	if viper.GetString("to-transition") == "" {
+	if viper.GetString("to") == "" {
 		fmt.Printf("returning possible transitions for issue having id %s\n", viper.GetString("key"))
 		resp, err = rest.Get(rest.GetTransitions, http.DefaultClient, viper.GetViper())
 	} else {
@@ -47,13 +47,14 @@ func handleTransitions(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("%s", *resp)
 	var transitions jira.GetTransitionResponse
 	if err = json.Unmarshal(*resp, &transitions); err != nil {
 		return err
 	}
 
-	fmt.Println(transitions.Transitions)
+	for _, transition := range transitions.Transitions {
+		fmt.Printf("id: %s\nname: %s\n\n", transition.Id, transition.Name)
+	}
 
 	return nil
 }
