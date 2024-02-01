@@ -8,12 +8,11 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"text/template"
 
 	"github.com/spf13/viper"
 )
 
-func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error) {
+func Get(op Operation, client *http.Client, v *viper.Viper) (*[]byte, error) {
 	var payload = []byte("")
 	var err error
 	var url string
@@ -21,17 +20,21 @@ func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error)
 	var req *http.Request
 	var resp *http.Response
 
-	url, err = operationSwitch(op, flags)
+	url, err = operationSwitch(op, v)
 	if err != nil {
 		return &payload, err
 	}
 
-	token = flags.GetString("token")
+	token = v.GetString("token")
 	if token == "" {
 		return &payload, errors.New("token is missing")
 	}
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return &payload, err
+	}
+
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", JSONContentType)
 	resp, err = client.Do(req)
@@ -55,43 +58,82 @@ func Get(op Operation, client *http.Client, flags *viper.Viper) (*[]byte, error)
 	return &payload, nil
 }
 
-func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
+func Post(op Operation, client *http.Client, v *viper.Viper, body *[]byte) (*[]byte, error) {
+	var payload = []byte("")
+	var err error
+	var url string
+	var token string
+	var req *http.Request
+	var resp *http.Response
+
+	url, err = operationSwitch(op, v)
+	if err != nil {
+		return &payload, err
+	}
+
+	token = v.GetString("token")
+	if token == "" {
+		return &payload, errors.New("token is missing")
+	}
+
+	req, err = http.NewRequest(http.MethodPost, url, bytes.NewBuffer(*body))
+	if err != nil {
+		return &payload, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", JSONContentType)
+	resp, err = client.Do(req)
+	if err != nil {
+		return &payload, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusNoContent {
+		return &payload, fmt.Errorf("expected status %s found %s",
+			http.StatusText(http.StatusOK),
+			http.StatusText(resp.StatusCode),
+		)
+	}
+
+	return &payload, err
+}
+
+func operationSwitch(op Operation, v *viper.Viper) (string, error) {
 	var builtUrl string
 	var err error
 
 	switch op {
 	case GetIssues:
 		var urlTemplate string
-		var jiraUrl string
+		var host string
 
-		jiraUrl = flags.GetString("host")
-		if jiraUrl == "" {
+		host = v.GetString("host")
+		if host == "" {
 			return "", errors.New("host is not provided, make sure \"host\" is provided with configuration file or flag")
 		}
 
-		content := urlSearch{JiraUrl: jiraUrl}
-
-		urlTemplate, err = getUrlFromTemplate(TemplateUrlSearch, GetIssues, content)
-
+		urlTemplate = fmt.Sprintf("https://%s/rest/api/2/search", host)
 		statements := []string{}
 		fields := []string{"description", "status", "issueKey", "assignee", "summary"}
-		if project := flags.GetString("project"); project != "" {
+		if project := v.GetString("project"); project != "" {
 			statements = append(statements, fmt.Sprintf("project=%s", project))
 		}
 
-		if user := flags.GetString("user"); user != "" {
+		if user := v.GetString("user"); user != "" {
 			statements = append(statements, fmt.Sprintf("assignee=%s", user))
 		}
 
-		if status := flags.GetString("status"); status != "" {
+		if status := v.GetString("status"); status != "" {
 			statements = append(statements, "status="+url.PathEscape("\""+status+"\""))
 		}
 
-		if activeSprint := flags.GetBool("active-sprint"); activeSprint == true {
-			statements = append(statements, fmt.Sprintf("Sprint+in+openSprints()"))
+		if activeSprint := v.GetBool("active-sprint"); activeSprint {
+			statements = append(statements, "Sprint+in+openSprints()")
 		}
 
-		if types := flags.GetString("type"); types != "" {
+		if types := v.GetString("type"); types != "" {
 			statements = append(statements, "issueType="+types)
 		}
 
@@ -120,6 +162,12 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 			}, "?",
 		)
 
+	case GetTransitions:
+		builtUrl, err = transitionsUrl(v)
+
+	case PostTransitions:
+		builtUrl, err = transitionsUrl(v)
+
 	default:
 		err = fmt.Errorf("unexpected operaion %s", op)
 	}
@@ -127,16 +175,19 @@ func operationSwitch(op Operation, flags *viper.Viper) (string, error) {
 	return builtUrl, err
 }
 
-func getUrlFromTemplate(t string, op Operation, content any) (string, error) {
-	urlTemplate, err := template.
-		New(fmt.Sprintf("operation-%s-url", op)).
-		Parse(t)
-	if err != nil {
-		return "", err
+func transitionsUrl(v *viper.Viper) (string, error) {
+	var host string
+	var issueKey string
+
+	host = v.GetString("host")
+	if host == "" {
+		return "", errors.New("host is not provided, make sure \"host\" is provided with configuration file or flag")
 	}
 
-	buf := new(bytes.Buffer)
-	urlTemplate.Execute(buf, content)
-	url := buf.String()
-	return url, nil
+	issueKey = v.GetString("key")
+	if issueKey == "" {
+		return "", errors.New("key is not provided, make sure \"key\" is provided with configuration file or flag")
+	}
+
+	return fmt.Sprintf("https://%s/rest/api/2/issue/%s/transitions", host, issueKey), nil
 }

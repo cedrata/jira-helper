@@ -23,7 +23,7 @@ func init() {
 	}
 
 	testsCmd.Flags().String("type", "test", "select the issue type")
-	viper.BindPFlag("type", issuesCmd.Flags().Lookup("type"))
+    _ = viper.BindPFlag("type", issuesCmd.Flags().Lookup("type"))
 
 	rootCmd.AddCommand(testsCmd)
 }

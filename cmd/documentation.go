@@ -27,8 +27,8 @@ func init() {
 	newDocCmd.Flags().StringP("user", "u", "AF82260", "user name to filter issues for")
 	newDocCmd.Flags().BoolP("active-sprint", "a", true, "select the issues only in active sprints")
 
-	viper.BindPFlag("user", newDocCmd.Flags().Lookup("user"))
-	viper.BindPFlag("active-sprint", newDocCmd.Flags().Lookup("active-sprint"))
+	_ = viper.BindPFlag("user", newDocCmd.Flags().Lookup("user"))
+	_ = viper.BindPFlag("active-sprint", newDocCmd.Flags().Lookup("active-sprint"))
 
 	rootCmd.AddCommand(newDocCmd)
 }
