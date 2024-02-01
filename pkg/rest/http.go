@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -57,11 +58,47 @@ func Get(op Operation, client *http.Client, v *viper.Viper) (*[]byte, error) {
 	return &payload, nil
 }
 
-// func Post(op Operation, client *http.Client, flags *viper.Viper, body *[]byte) (*[]byte, error) {
-//     var payload = []byte("")
-//     var err error
-//     var url string
-// }
+func Post(op Operation, client *http.Client, v *viper.Viper, body *[]byte) (*[]byte, error) {
+	var payload = []byte("")
+	var err error
+	var url string
+	var token string
+	var req *http.Request
+	var resp *http.Response
+
+	url, err = operationSwitch(op, v)
+	if err != nil {
+		return &payload, err
+	}
+
+	token = v.GetString("token")
+	if token == "" {
+		return &payload, errors.New("token is missing")
+	}
+
+	req, err = http.NewRequest(http.MethodPost, url, bytes.NewBuffer(*body))
+	if err != nil {
+		return &payload, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", JSONContentType)
+	resp, err = client.Do(req)
+	if err != nil {
+		return &payload, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusNoContent {
+		return &payload, fmt.Errorf("expected status %s found %s",
+			http.StatusText(http.StatusOK),
+			http.StatusText(resp.StatusCode),
+		)
+	}
+
+	return &payload, err
+}
 
 func operationSwitch(op Operation, v *viper.Viper) (string, error) {
 	var builtUrl string
