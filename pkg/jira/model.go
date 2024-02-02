@@ -30,6 +30,10 @@ func (i Issue) String() string {
 func (i Issues) String() string {
 	var res string
 
+	if len(i) == 0 {
+		return ""
+	}
+
 	for k := range i {
 		res = fmt.Sprintf("%s\n\n%s", res, i[k].String())
 	}
