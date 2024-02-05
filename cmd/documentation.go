@@ -7,8 +7,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/cedrata/jira-helper/pkg/markdown"
-	"github.com/cedrata/jira-helper/pkg/rest"
+	"github.com/cedrata/jira-helper/app/markdown"
+	"github.com/cedrata/jira-helper/app/rest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -24,3 +24,21 @@ If any query or path parameter is required then a dedicated flag is added for th
 ## Configuration
 Because it is possible to use multiple accounts a `toml` configuration file is provided with in order to select a profile with the `--profile` flag when launching a command.
 The configuration file will be placed in `~/.jhelp.config`
+
+## Project structure
+```bash
+.
+├── Makefile
+├── README.md
+├── bin # executables
+├── cmd # package for all commands and subcommands
+├── generator # package for everything in main/generator/main.go
+├── go.mod
+├── go.sum
+├── main # where all the main packages are stored
+│   ├── app # jira-helper application main package
+│   │   └── main.go
+│   └── generator # go generate application
+│       └── main.go
+└── app # package for everything in main/app/main.go
+```

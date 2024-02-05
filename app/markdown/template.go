@@ -6,7 +6,7 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/cedrata/jira-helper/pkg/jira"
+	"github.com/cedrata/jira-helper/app/jira"
 )
 
 const DocTemplate = `

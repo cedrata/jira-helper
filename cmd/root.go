@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/pkg/jira"
+	"github.com/cedrata/jira-helper/app/config"
+	"github.com/cedrata/jira-helper/app/jira"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

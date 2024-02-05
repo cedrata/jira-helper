@@ -3,7 +3,7 @@ package markdown
 import (
 	"testing"
 
-	"github.com/cedrata/jira-helper/pkg/jira"
+	"github.com/cedrata/jira-helper/app/jira"
 	"github.com/stretchr/testify/assert"
 )
 

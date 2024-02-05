@@ -8,7 +8,7 @@ import (
 	//"strings"
 	//"testing"
 
-	// "github.com/cedrata/jira-helper/pkg/config"
+	// "github.com/cedrata/jira-helper/app/config"
 	// "github.com/stretchr/testify/assert"
 )
 
