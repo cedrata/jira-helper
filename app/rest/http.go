@@ -191,3 +191,56 @@ func transitionsUrl(v *viper.Viper) (string, error) {
 
 	return fmt.Sprintf("https://%s/rest/api/2/issue/%s/transitions", host, issueKey), nil
 }
+
+type RequestHelper struct {
+	host            string
+	resource        string
+	protocol        string
+	method          string
+	queryParameters map[string]string
+	headers         map[string]string
+	body            []byte
+}
+
+func NewRequestHelper(host string, resource string, method string, queryParameters map[string]string, headers map[string]string, body []byte) *RequestHelper {
+	return &RequestHelper{
+		resource:        resource,
+		protocol:        "https",
+		method:          method,
+		queryParameters: queryParameters,
+		body:            body,
+	}
+}
+
+func (rh *RequestHelper) BuildRequest() (*http.Request, error) {
+
+	parsedResource, err := url.Parse(rh.resource)
+	if err != nil {
+		return nil, err
+	}
+
+	queryString := parsedResource.Query()
+	for k, v := range rh.queryParameters {
+		queryString.Set(k, v)
+	}
+
+	parsedResource.RawQuery = queryString.Encode()
+	parsedHost, err := url.Parse(fmt.Sprintf("%s://%s", rh.protocol, rh.host))
+	if err != nil {
+		return nil, err
+	}
+
+	completeUrl := parsedHost.ResolveReference(parsedResource)
+	bodyBuffer := bytes.NewBuffer(rh.body)
+
+	request, err := http.NewRequest(rh.method, completeUrl.String(), bodyBuffer)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range rh.headers {
+		request.Header.Add(k, v)
+	}
+
+	return request, nil
+}
