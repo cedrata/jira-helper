@@ -2,6 +2,7 @@ package issues
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"slices"
 
@@ -123,12 +124,11 @@ sequence value.`,
 func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 	var queryParameters = make(map[string]string)
 
-	var successStatusCodes = []int{
-		http.StatusOK,
-	}
-	var errorStatusCode = []int{
+	var successStatusCodes = []int{http.StatusOK}
+
+	var errorStatusCodes = []int{
 		http.StatusUnauthorized,
-        http.StatusNotFound,
+		http.StatusNotFound,
 	}
 
 	// add provided query parameters
@@ -161,11 +161,38 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 		nil,
 	)
 
-	request, _ := requestHelper.BuildRequest()
+	request, err := requestHelper.BuildRequest()
+	if err != nil {
+		return err
+	}
 
-	_, _ = http.DefaultClient.Do(request)
+	response, _ := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
 
-    // validate response and print value if any
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	var message string
+	// Check if response status code is an error to expect
+	if slices.Index(successStatusCodes, response.StatusCode) == -1 {
+		message = fmt.Sprintf("%s\n%s\n", response.Status, body)
+	} else if slices.Index(errorStatusCodes, response.StatusCode) == -1 {
+		message = fmt.Sprintf(
+			"%s\n%s\n",
+			response.Status, body,
+		)
+	} else {
+		message = fmt.Sprintf(
+			"an unexpected error occured: %s\n%s\n",
+			response.Status, body,
+		)
+	}
+
+	fmt.Print(message)
 
 	return nil
 }
