@@ -1,4 +1,4 @@
-package issues
+package gettransition
 
 import (
 	"fmt"
@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var getTransitionsCmd *cobra.Command
+var GetTransitionsCmd *cobra.Command
 
 func init() {
-	getTransitionsCmd = &cobra.Command{
+	GetTransitionsCmd = &cobra.Command{
 		Use:   "get-transitions --issue-key <issue-key>",
 		Short: "Get the issue transitions",
 		Long: `Given an issue key or Id return the possible transitions from 
@@ -24,7 +24,7 @@ func init() {
 
 	// Path parameters
 	// Append flags to command
-	_ = getTransitionsCmd.
+	_ = GetTransitionsCmd.
 		Flags().
 		String(
 			"issue-key",
@@ -33,19 +33,19 @@ func init() {
 		)
 
 	// Requied Flags
-	_ = getTransitionsCmd.MarkFlagRequired("issue-key")
+	_ = GetTransitionsCmd.MarkFlagRequired("issue-key")
 
 	// Bond flags viper
 	_ = viper.BindPFlag(
 		"issue-key",
-		getTransitionsCmd.
+		GetTransitionsCmd.
 			Flags().
 			Lookup("issue-key"),
 	)
 
 	// Query parameters
 	// Append flags to command
-	_ = getTransitionsCmd.
+	_ = GetTransitionsCmd.
 		Flags().
 		String(
 			"expand",
@@ -57,14 +57,14 @@ each transition. Fields hidden from the screen are not returned.
 Use this information to populate the fields and update fields in 
 Transition issue.`,
 		)
-	_ = getTransitionsCmd.
+	_ = GetTransitionsCmd.
 		Flags().
 		String(
 			"transition-id",
 			"",
 			"The ID of the transition.",
 		)
-	_ = getTransitionsCmd.
+	_ = GetTransitionsCmd.
 		Flags().
 		Bool(
 			"skip-remote-only-condition",
@@ -72,7 +72,7 @@ Transition issue.`,
 			`Whether transitions with the condition Hide From User Condition 
 are included in the response.`,
 		)
-	_ = getTransitionsCmd.
+	_ = GetTransitionsCmd.
 		Flags().
 		Bool(
 			"include-unavailable-transitions",
@@ -80,7 +80,7 @@ are included in the response.`,
 			`Whether details of transitions that fail a condition are included 
 in the response`,
 		)
-	_ = getTransitionsCmd.
+	_ = GetTransitionsCmd.
 		Flags().
 		Bool(
 			"sort-by-ops-bar-and-status",
@@ -94,28 +94,28 @@ sequence value.`,
 	_ = viper.
 		BindPFlag(
 			"expand",
-			getTransitionsCmd.
+			GetTransitionsCmd.
 				Flags().
 				Lookup("expand"),
 		)
 	_ = viper.
 		BindPFlag(
 			"transition-id",
-			getTransitionsCmd.
+			GetTransitionsCmd.
 				Flags().
 				Lookup("transition-id"),
 		)
 	_ = viper.
 		BindPFlag(
 			"skip-remote-only-condition",
-			getTransitionsCmd.
+			GetTransitionsCmd.
 				Flags().
 				Lookup("skip-remote-only-condition"),
 		)
 	_ = viper.
 		BindPFlag(
 			"include-unavailable-transitions",
-			getTransitionsCmd.
+			GetTransitionsCmd.
 				Flags().
 				Lookup("include-unavailable-transitions"),
 		)
@@ -177,14 +177,10 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	var message string
-	// Check if response status code is an error to expect
 	if slices.Index(successStatusCodes, response.StatusCode) == -1 {
 		message = fmt.Sprintf("%s\n%s\n", response.Status, body)
 	} else if slices.Index(errorStatusCodes, response.StatusCode) == -1 {
-		message = fmt.Sprintf(
-			"%s\n%s\n",
-			response.Status, body,
-		)
+		message = fmt.Sprintf("%s\n%s\n", response.Status, body)
 	} else {
 		message = fmt.Sprintf(
 			"an unexpected error occured: %s\n%s\n",

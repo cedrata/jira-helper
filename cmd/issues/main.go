@@ -1,6 +1,7 @@
 package issues
 
 import (
+	"github.com/cedrata/jira-helper/cmd/issues/gettransition"
 	"github.com/spf13/cobra"
 )
 
@@ -11,5 +12,6 @@ func init() {
 		Use: "issues",
 	}
 
-	IssuesCmd.AddCommand(getTransitionsCmd)
+
+	IssuesCmd.AddCommand(gettransition.GetTransitionsCmd)
 }
