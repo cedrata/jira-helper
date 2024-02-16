@@ -204,6 +204,7 @@ type RequestHelper struct {
 
 func NewRequestHelper(host string, resource string, method string, queryParameters map[string]string, headers map[string]string, body []byte) *RequestHelper {
 	return &RequestHelper{
+		host:            host,
 		resource:        resource,
 		protocol:        "https",
 		method:          method,
@@ -256,6 +257,6 @@ func PostHeadersWithBearer(token string) map[string]string {
 func GetHeadersWithBearer(token string) map[string]string {
 	return map[string]string{
 		"Accept":        "application/json",
-        "Authorization": fmt.Sprintf("Bearer %s", token),
-    }
+		"Authorization": fmt.Sprintf("Bearer %s", token),
+	}
 }
