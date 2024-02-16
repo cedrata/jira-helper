@@ -209,6 +209,7 @@ func NewRequestHelper(host string, resource string, method string, queryParamete
 		protocol:        "https",
 		method:          method,
 		queryParameters: queryParameters,
+		headers:         headers,
 		body:            body,
 	}
 }
