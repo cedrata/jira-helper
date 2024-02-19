@@ -2,9 +2,7 @@ package gettransition
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"slices"
 
 	"github.com/cedrata/jira-helper/app/rest"
 	"github.com/spf13/cobra"
@@ -124,13 +122,6 @@ sequence value.`,
 func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 	var queryParameters = make(map[string]string)
 
-	var successStatusCodes = []int{http.StatusOK}
-
-	var errorStatusCodes = []int{
-		http.StatusUnauthorized,
-		http.StatusNotFound,
-	}
-
 	// add provided query parameters
 	if viper.GetString("expand") != "" {
 		queryParameters["expand"] = viper.GetString("expand")
@@ -171,24 +162,12 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	body, err := io.ReadAll(response.Body)
+	message, err := rest.PrettyHttpReponse(response)
 	if err != nil {
 		return err
 	}
 
-	var message string
-	if slices.Index(successStatusCodes, response.StatusCode) == -1 {
-		message = fmt.Sprintf("%s\n%s\n", response.Status, body)
-	} else if slices.Index(errorStatusCodes, response.StatusCode) == -1 {
-		message = fmt.Sprintf("%s\n%s\n", response.Status, body)
-	} else {
-		message = fmt.Sprintf(
-			"an unexpected error occured: %s\n%s\n",
-			response.Status, body,
-		)
-	}
-
-	fmt.Print(message)
+	fmt.Println(message)
 
 	return nil
 }
