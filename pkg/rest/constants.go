@@ -1,5 +1,6 @@
 package rest
 
+
 type Operation string
 
 const (

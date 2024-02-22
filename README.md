@@ -1,5 +1,7 @@
 # Jira Helper CLI
-This project is born to help me and my colleague @cesto93 to automate the workflow we had with Jira in our project. This CLI is a 1:1 integration with the [Jira REST API v2](https://developer.atlassian.com/cloud/jira/platform/rest/v2/intro/#about) to help you execute repetitive tasks via scripts or simply change your card status, assignee and more to come.
+This project is born to help me and my colleague [@cesto93](https://github.com/cesto93) to automate the workflow we had with Jira in our project. This CLI is a 1:1 integration with the [Jira REST API v2](https://developer.atlassian.com/cloud/jira/platform/rest/v2/intro/#about) to help you execute repetitive tasks via scripts or simply change your card status, assignee and more to come.
+
+Because a tool to query JSON payloads is already available ([jq](https://jqlang.github.io/jq/)) this cli is intended to act as a simple HTTP client so it's flexible enogh and can help building scripts to automate you work with jira if needed.
 
 ## Featrues
 Because this implementation aims to be 1:1 implementation of the [JIRA REST API v2](https://developer.atlassian.com/cloud/jira/platform/rest/v2/intro/#about) a command will exist for each section. Each command will have it's own subcommand, each subcommand will be linked to a URL and an HTTP method to keep the integration simple.
@@ -18,27 +20,6 @@ To follow you can find the implemented endpoints for each jira group:
 - [Myself](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-group-myself)
     - [Get Current User](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-rest-api-2-myself-get) 🔜
 
-If any body is required a `--body` flag is provided and can be added there.
-If any query or path parameter is required then a dedicated flag is added for the command and must be filled if required.
-
 ## Configuration
-Because it is possible to use multiple accounts a `toml` configuration file is provided with in order to select a profile with the `--profile` flag when launching a command.
+Because it is possible to use multiple accounts configuration file is provided with in order to select a profile with the `--profile` flag when launching a command.
 The configuration file will be placed in `~/.jhelp.config`
-
-## Project structure
-```bash
-.
-├── Makefile
-├── README.md
-├── bin # executables
-├── cmd # package for all commands and subcommands
-├── generator # package for everything in main/generator/main.go
-├── go.mod
-├── go.sum
-├── main # where all the main packages are stored
-│   ├── app # jira-helper application main package
-│   │   └── main.go
-│   └── generator # go generate application
-│       └── main.go
-└── app # package for everything in main/app/main.go
-```
