@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -85,7 +86,8 @@ func JSONHttpReponse(response *http.Response) (string, error) {
 
 	body, err := io.ReadAll(response.Body)
 	defer func() {
-		if err := response.Body.Close(); err != nil {
+		if derr := response.Body.Close(); derr != nil {
+			err = errors.Join(err, derr)
 			fmt.Println("an error occured closing the body")
 		}
 	}()
