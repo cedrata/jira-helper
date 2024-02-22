@@ -157,7 +157,7 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := rest.PrettyHttpReponse(response)
+	message, err := rest.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}

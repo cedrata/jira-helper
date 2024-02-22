@@ -79,13 +79,22 @@ func GetHeadersWithBearer(token string) map[string]string {
 	}
 }
 
-func PrettyHttpReponse(response *http.Response) (string, error) {
+func JSONHttpReponse(response *http.Response) (string, error) {
 	var buf bytes.Buffer
-    var err error
+	var err error
 
 	body, err := io.ReadAll(response.Body)
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			fmt.Println("an error occured closing the body")
+		}
+	}()
 	if err != nil {
 		return "", err
+	}
+
+	if string(body) == "" {
+		body = []byte("{}")
 	}
 
 	minified := fmt.Sprintf(

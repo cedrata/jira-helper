@@ -1,6 +1,9 @@
 package rest
 
 import (
+	"bytes"
+	"io"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -48,6 +51,45 @@ func TestBuildRequest(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, test.expectedUrlString, request.URL.String())
+		})
+	}
+}
+
+func TestJSONPrettyResponse(t *testing.T) {
+	type result struct {
+		body string
+		err  error
+	}
+
+	type tester struct {
+		response *http.Response
+		expected result
+		name     string
+	}
+
+	tests := []tester{
+		{
+			response: &http.Response{
+				StatusCode: 204,
+				Body:       io.NopCloser(bytes.NewBufferString("")),
+			},
+			expected: result{
+				body: `{
+  "statusCode": 204,
+  "body": {}
+}`,
+				err: nil,
+			},
+			name: "no content body",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			body, err := JSONHttpReponse(test.response)
+
+			assert.Equal(t, test.expected.err, err)
+			assert.Equal(t, test.expected.body, body)
 		})
 	}
 }
