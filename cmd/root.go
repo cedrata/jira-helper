@@ -2,8 +2,7 @@ package cmd
 
 import (
 	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/cmd/issues"
-	"github.com/cedrata/jira-helper/cmd/issuesearch"
+	"github.com/cedrata/jira-helper/pkg/jira"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,9 +35,6 @@ func init() {
 	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
 	_ = viper.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
 	_ = viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
-
-    rootCmd.AddCommand(issues.IssuesCmd)
-    rootCmd.AddCommand(issuesearch.IssueSearchCmd)
 }
 
 func initConfig() {
@@ -51,4 +47,55 @@ func initConfig() {
 	if _, ok := err.(viper.ConfigFileNotFoundError); !ok && configFile == "" {
 		cobra.CheckErr(err)
 	}
+}
+
+func extractIssue(issue interface{}) jira.Issue {
+	var newIssue jira.Issue
+
+	fields := issue.(map[string]interface{})["fields"].(map[string]interface{})
+	newIssue.Key = issue.(map[string]interface{})["key"].(string)
+
+	if temp, ok := fields["assignee"].(map[string]interface{}); ok {
+		newIssue.Assignee = temp["name"].(string)
+	}
+
+	if temp, ok := fields["description"].(string); ok {
+		newIssue.Description = temp
+	}
+
+	if temp, ok := fields["status"].(map[string]interface{}); ok {
+		newIssue.Status = temp["name"].(string)
+	}
+
+	if temp, ok := fields["summary"].(string); ok {
+		newIssue.Summary = temp
+	}
+
+	return newIssue
+}
+
+func extractIssues(result map[string]interface{}) jira.Issues {
+	var issues []interface{}
+	var res []jira.Issue
+	issues = result["issues"].([]interface{})
+
+	for _, k := range issues {
+		res = append(res, extractIssue(k))
+	}
+
+	return res
+}
+
+func extractIssuesMap(result map[string]interface{}) map[string]jira.Issue {
+	var issues []interface{}
+
+	res := make(map[string]jira.Issue)
+	issues = result["issues"].([]interface{})
+
+	for k := range issues {
+		issue := extractIssue(k)
+		res[issue.Key] = issue
+	}
+
+	return res
 }
