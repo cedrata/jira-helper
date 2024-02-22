@@ -1,5 +1,5 @@
 build:
-	go build -C ./main/core -o ../../bin/jhelp
+	go build -o ./bin/jhelp
 
 test:
 	go test ./...
