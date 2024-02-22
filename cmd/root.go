@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/cedrata/jira-helper/app/config"
+	"github.com/cedrata/jira-helper/pkg/config"
 	"github.com/cedrata/jira-helper/cmd/issues"
 	"github.com/cedrata/jira-helper/cmd/issuesearch"
 	"github.com/spf13/cobra"

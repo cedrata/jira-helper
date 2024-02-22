@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cedrata/jira-helper/app/rest"
+	"github.com/cedrata/jira-helper/pkg/rest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
