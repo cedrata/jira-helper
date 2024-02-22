@@ -3,6 +3,7 @@ package gettransition
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/cedrata/jira-helper/app/rest"
 	"github.com/spf13/cobra"
@@ -13,7 +14,7 @@ var GetTransitionsCmd *cobra.Command
 
 func init() {
 	GetTransitionsCmd = &cobra.Command{
-		Use:   "get-transitions --issue-key <issue-key>",
+		Use:   "get-transitions",
 		Short: "Get the issue transitions",
 		Long: `Given an issue key or Id return the possible transitions from 
         the current one`,
@@ -32,14 +33,6 @@ func init() {
 
 	// Requied Flags
 	_ = GetTransitionsCmd.MarkFlagRequired("issue-key")
-
-	// Bond flags viper
-	_ = viper.BindPFlag(
-		"issue-key",
-		GetTransitionsCmd.
-			Flags().
-			Lookup("issue-key"),
-	)
 
 	// Query parameters
 	// Append flags to command
@@ -87,62 +80,64 @@ in the response`,
 then category order (Todo, In Progress, Done) or only by ops-bar 
 sequence value.`,
 		)
-
-	// Bond flags viper
-	_ = viper.
-		BindPFlag(
-			"expand",
-			GetTransitionsCmd.
-				Flags().
-				Lookup("expand"),
-		)
-	_ = viper.
-		BindPFlag(
-			"transition-id",
-			GetTransitionsCmd.
-				Flags().
-				Lookup("transition-id"),
-		)
-	_ = viper.
-		BindPFlag(
-			"skip-remote-only-condition",
-			GetTransitionsCmd.
-				Flags().
-				Lookup("skip-remote-only-condition"),
-		)
-	_ = viper.
-		BindPFlag(
-			"include-unavailable-transitions",
-			GetTransitionsCmd.
-				Flags().
-				Lookup("include-unavailable-transitions"),
-		)
 }
 
 func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 	var queryParameters = make(map[string]string)
+	var err error
+	var issueKey string
+	var expand string
+	var transitionId string
+	var skipRemoteOnlyCondition bool
+	var includeUnavailableTransitions bool
+
+	// store path parameters
+	issueKey, err = cmd.Flags().GetString("issue-key")
+	if err != nil {
+		return err
+	}
 
 	// add provided query parameters
-	if viper.GetString("expand") != "" {
-		queryParameters["expand"] = viper.GetString("expand")
+	expand, err = cmd.Flags().GetString("expand")
+	if err != nil {
+		return err
 	}
 
-	if viper.GetString("transition-id") != "" {
-		queryParameters["transition-id"] = viper.GetString("transition-id")
+	if expand != "" {
+		queryParameters["expand"] = expand
 	}
 
-	// Boolean properties are added anyway because they have a default value
+	transitionId, err = cmd.Flags().GetString("transition-id")
+	if err != nil {
+		return err
+	}
+
+	if transitionId != "" {
+		queryParameters["transition-id"] = transitionId
+	}
+
+	// boolean properties are added anyway because they have a default value
+	skipRemoteOnlyCondition, err =
+		cmd.Flags().GetBool("skip-remote-only-condition")
+	if err != nil {
+		return err
+	}
 	queryParameters["skip-remote-only-condition"] =
-		viper.GetString("skip-remote-only-condition")
+		strconv.FormatBool(skipRemoteOnlyCondition)
 
+	includeUnavailableTransitions, err =
+		cmd.Flags().GetBool("include-unavailable-transitions")
+	if err != nil {
+		return err
+	}
 	queryParameters["include-unavailable-transitions"] =
-		viper.GetString("include-unavailable-transitions")
+		strconv.FormatBool(includeUnavailableTransitions)
 
 	requestHelper := rest.NewRequestHelper(
 		viper.GetString("host"),
 		fmt.Sprintf(
 			"rest/api/2/issue/%s/transitions",
-			viper.GetString("issue-key"),
+			issueKey,
 		),
 		http.MethodGet,
 		queryParameters,
@@ -157,7 +152,7 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	response, _ := http.DefaultClient.Do(request)
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return err
 	}
