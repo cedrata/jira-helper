@@ -18,7 +18,7 @@ To follow you can find the implemented endpoints for each jira group:
     - [Search for Issue POST](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-search/#api-rest-api-2-search-get) ✅
 
 - [Myself](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-group-myself)
-    - [Get Current User](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-rest-api-2-myself-get) 🔜
+    - [Get Current User](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-rest-api-2-myself-get) ✅
 
 ## Configuration
 Because it is possible to use multiple accounts configuration file is provided with in order to select a profile with the `--profile` flag when launching a command.
