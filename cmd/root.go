@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/cedrata/jira-helper/pkg/config"
 	"github.com/cedrata/jira-helper/cmd/issues"
 	"github.com/cedrata/jira-helper/cmd/issuesearch"
+	"github.com/cedrata/jira-helper/cmd/myself"
+	"github.com/cedrata/jira-helper/pkg/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -39,6 +40,7 @@ func init() {
 
     rootCmd.AddCommand(issues.IssuesCmd)
     rootCmd.AddCommand(issuesearch.IssueSearchCmd)
+    rootCmd.AddCommand(myself.MyselfCmd)
 }
 
 func initConfig() {
