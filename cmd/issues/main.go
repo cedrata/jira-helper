@@ -1,6 +1,7 @@
 package issues
 
 import (
+	"github.com/cedrata/jira-helper/cmd/issues/assignissue"
 	"github.com/cedrata/jira-helper/cmd/issues/gettransition"
 	"github.com/cedrata/jira-helper/cmd/issues/transitionissue"
 	"github.com/spf13/cobra"
@@ -13,7 +14,7 @@ func init() {
 		Use: "issues",
 	}
 
-
 	IssuesCmd.AddCommand(gettransition.GetTransitionsCmd)
-    IssuesCmd.AddCommand(transitionissue.TransitionIssueCmd)
+	IssuesCmd.AddCommand(transitionissue.TransitionIssueCmd)
+	IssuesCmd.AddCommand(assignissue.AssignIssueCmd)
 }

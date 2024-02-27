@@ -65,6 +65,14 @@ func (rh *RequestHelper) BuildRequest() (*http.Request, error) {
 	return request, nil
 }
 
+func PutHeadersWithBearer(token string) map[string]string {
+	return map[string]string{
+		"Accept":        "application/json",
+		"Content-Type":  "application/json",
+		"Authorization": fmt.Sprintf("Bearer %s", token),
+	}
+}
+
 func PostHeadersWithBearer(token string) map[string]string {
 	return map[string]string{
 		"Accept":        "application/json",
