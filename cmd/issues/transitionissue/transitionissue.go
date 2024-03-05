@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cedrata/jira-helper/pkg/rest"
+	"github.com/cedrata/jira-helper/pkg/config"
+	"github.com/cedrata/jira-helper/pkg/helpers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var TransitionIssueCmd *cobra.Command
@@ -60,16 +60,16 @@ func transitionIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	requestHelper := rest.NewRequestHelper(
-		viper.GetString("host"),
+	requestHelper := helpers.NewRequestHelper(
+		config.ConfigData.Host,
 		fmt.Sprintf(
 			"rest/api/2/issue/%s/transitions",
 			issueKey,
 		),
 		http.MethodPost,
 		make(map[string]string),
-		rest.PostHeadersWithBearer(
-			viper.GetString("token"),
+		helpers.PostHeadersWithBearer(
+			config.ConfigData.Token,
 		),
 		[]byte(body),
 	)
@@ -84,7 +84,7 @@ func transitionIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := rest.JSONHttpReponse(response)
+	message, err := helpers.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}
