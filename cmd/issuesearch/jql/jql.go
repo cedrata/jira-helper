@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cedrata/jira-helper/pkg/rest"
+	"github.com/cedrata/jira-helper/pkg/config"
+	"github.com/cedrata/jira-helper/pkg/helpers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var JqlCmd *cobra.Command
@@ -41,13 +41,13 @@ func jqlHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	requestHelper := rest.NewRequestHelper(
-		viper.GetString("host"),
+	requestHelper := helpers.NewRequestHelper(
+		config.ConfigData.Host,
 		"rest/api/2/search",
 		http.MethodPost,
 		make(map[string]string),
-		rest.PostHeadersWithBearer(
-			viper.GetString("token"),
+		helpers.PostHeadersWithBearer(
+			config.ConfigData.Token,
 		),
 		[]byte(body),
 	)
@@ -62,7 +62,7 @@ func jqlHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := rest.JSONHttpReponse(resopnse)
+	message, err := helpers.JSONHttpReponse(resopnse)
 	if err != nil {
 		return err
 	}

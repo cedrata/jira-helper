@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cedrata/jira-helper/pkg/rest"
+	"github.com/cedrata/jira-helper/pkg/config"
+	"github.com/cedrata/jira-helper/pkg/helpers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var GetCurrentUserCmd *cobra.Command
@@ -50,13 +50,13 @@ func getCurrentUserHandler(cmd *cobra.Command, flags []string) error {
 		queryParameters["expand"] = expand
 	}
 
-	requestHelper := rest.NewRequestHelper(
-		viper.GetString("host"),
+	requestHelper := helpers.NewRequestHelper(
+		config.ConfigData.Host,
 		"/rest/api/2/myself",
 		http.MethodGet,
 		queryParameters,
-		rest.GetHeadersWithBearer(
-			viper.GetString("token"),
+		helpers.GetHeadersWithBearer(
+			config.ConfigData.Token,
 		),
 		nil,
 	)
@@ -71,7 +71,7 @@ func getCurrentUserHandler(cmd *cobra.Command, flags []string) error {
 		return err
 	}
 
-	message, err := rest.JSONHttpReponse(response)
+	message, err := helpers.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}

@@ -23,3 +23,4 @@ To follow you can find the implemented endpoints for each jira group:
 ## Configuration
 Because it is possible to use multiple accounts configuration file is provided with in order to select a profile with the `--profile` flag when launching a command.
 The configuration file will be placed in `~/.jhelp.config`
+
