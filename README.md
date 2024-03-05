@@ -21,6 +21,11 @@ To follow you can find the implemented endpoints for each jira group:
     - [Get Current User](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-rest-api-2-myself-get) ✅
 
 ## Configuration
-Because it is possible to use multiple accounts configuration file is provided with in order to select a profile with the `--profile` flag when launching a command.
-The configuration file will be placed in `~/.jhelp.config`
+Before using the cli create the file `~/.jhelp.config` with the same structure as follows:
+```
+[default]
+host=your.host.com
+token=yourjiratoken
+```
 
+The configuration file is strucutred to hava many profiles. The profile `default` is the one used if the `--profile` flag is not provided. If you wish to have more than one profile and call it explicitely add a section structured like the example before and you can add the `--profile` flag with the name you set for the profile.
