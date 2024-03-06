@@ -74,18 +74,6 @@ func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
 		config.ConfigData.Host = host
 	}
 
-	// When adding the 'config' subbcomamnd ignore validation of the config
-	// and execute no matter what.
-
-	// In case of any other command being invoked then the validation is
-	// enabled
-
-	// If 'config' is not at index 1 in the cmd.CommandPath() after
-	// a string split then it's not a configuration command
-	//
-	// fmt.Printf("PersistentPreRun: %s\n", cmd.CommandPath())
-
-	// IT WORKS :-)
 	if err = utils.ValidateStruct(*config.ConfigData); err != nil {
 		return err
 	}
