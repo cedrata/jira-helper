@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/cedrata/jira-helper/pkg/helpers"
 	"github.com/spf13/viper"
 )
 
@@ -29,19 +28,4 @@ func LoadLocalConfig(configPath string, configName string, v *viper.Viper) error
 	err = v.ReadInConfig()
 
 	return err
-}
-
-// Validate the provided viper instance and if valid return a configuratio struct
-func ValidateProfile(profile string, v *viper.Viper) (*Config, error) {
-	var err error
-	var res Config
-
-	err = v.UnmarshalKey(profile, &res)
-	if err != nil {
-		return &res, err
-	}
-    
-    err = helpers.ValidateStruct(res)
-
-	return &res, err
 }

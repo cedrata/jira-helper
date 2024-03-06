@@ -1,7 +1,12 @@
 package main
 
-import "github.com/cedrata/jira-helper/cmd"
+import (
+	"github.com/cedrata/jira-helper/cmd"
+	"github.com/spf13/cobra"
+)
 
 func main() {
-    cmd.Execute()
+    if err := cmd.Execute(); err != nil {
+        cobra.CheckErr(err)
+    }
 }

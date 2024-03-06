@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/pkg/helpers"
+	httpHelpers "github.com/cedrata/jira-helper/pkg/helpers/http"
 	"github.com/spf13/cobra"
 )
 
@@ -50,12 +50,12 @@ func getCurrentUserHandler(cmd *cobra.Command, flags []string) error {
 		queryParameters["expand"] = expand
 	}
 
-	requestHelper := helpers.NewRequestHelper(
+	requestHelper := httpHelpers.NewRequestHelper(
 		config.ConfigData.Host,
 		"/rest/api/2/myself",
 		http.MethodGet,
 		queryParameters,
-		helpers.GetHeadersWithBearer(
+		httpHelpers.GetHeadersWithBearer(
 			config.ConfigData.Token,
 		),
 		nil,
@@ -71,7 +71,7 @@ func getCurrentUserHandler(cmd *cobra.Command, flags []string) error {
 		return err
 	}
 
-	message, err := helpers.JSONHttpReponse(response)
+	message, err := httpHelpers.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}

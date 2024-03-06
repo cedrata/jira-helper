@@ -1,5 +1,5 @@
 # Jira Helper CLI
-This project is born to help me and my colleague [@cesto93](https://github.com/cesto93) to automate the workflow we had with Jira in our project. This CLI is a 1:1 integration with the [Jira REST API v2](https://developer.atlassian.com/cloud/jira/platform/rest/v2/intro/#about) to help you execute repetitive tasks via scripts or simply change your card status, assignee and more to come.
+This project is born to help building automation scripts with jira. This CLI is a 1:1 integration with the [Jira REST API v2](https://developer.atlassian.com/cloud/jira/platform/rest/v2/intro/#about) to help you execute repetitive tasks via scripts or simply change your card status, assignee and more to come.
 
 Because a tool to query JSON payloads is already available ([jq](https://jqlang.github.io/jq/)) this cli is intended to act as a simple HTTP client so it's flexible enogh and can help building scripts to automate you work with jira if needed.
 

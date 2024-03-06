@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/pkg/helpers"
+	httpHelpers "github.com/cedrata/jira-helper/pkg/helpers/http"
 	"github.com/spf13/cobra"
 )
 
@@ -41,12 +41,12 @@ func jqlHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	requestHelper := helpers.NewRequestHelper(
+	requestHelper := httpHelpers.NewRequestHelper(
 		config.ConfigData.Host,
 		"rest/api/2/search",
 		http.MethodPost,
 		make(map[string]string),
-		helpers.PostHeadersWithBearer(
+		httpHelpers.PostHeadersWithBearer(
 			config.ConfigData.Token,
 		),
 		[]byte(body),
@@ -62,7 +62,7 @@ func jqlHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := helpers.JSONHttpReponse(resopnse)
+	message, err := httpHelpers.JSONHttpReponse(resopnse)
 	if err != nil {
 		return err
 	}
