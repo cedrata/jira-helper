@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/pkg/helpers"
+	httpHelpers "github.com/cedrata/jira-helper/pkg/helpers/http"
 	"github.com/spf13/cobra"
 )
 
@@ -133,7 +133,7 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 	queryParameters["include-unavailable-transitions"] =
 		strconv.FormatBool(includeUnavailableTransitions)
 
-	requestHelper := helpers.NewRequestHelper(
+	requestHelper := httpHelpers.NewRequestHelper(
 		config.ConfigData.Host,
 		fmt.Sprintf(
 			"rest/api/2/issue/%s/transitions",
@@ -141,7 +141,7 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 		),
 		http.MethodGet,
 		queryParameters,
-		helpers.GetHeadersWithBearer(
+		httpHelpers.GetHeadersWithBearer(
 			config.ConfigData.Token,
 		),
 		nil,
@@ -157,7 +157,7 @@ func getTransitionsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := helpers.JSONHttpReponse(response)
+	message, err := httpHelpers.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}

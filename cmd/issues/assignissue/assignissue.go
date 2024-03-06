@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/pkg/helpers"
+	httpHelpers "github.com/cedrata/jira-helper/pkg/helpers/http"
 	"github.com/spf13/cobra"
 )
 
@@ -61,7 +61,7 @@ func assignIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	requestHelper := helpers.NewRequestHelper(
+	requestHelper := httpHelpers.NewRequestHelper(
 		config.ConfigData.Host,
 		fmt.Sprintf(
 			"rest/api/2/issue/%s/assignee",
@@ -69,7 +69,7 @@ func assignIssueHandler(cmd *cobra.Command, args []string) error {
 		),
 		http.MethodPut,
 		make(map[string]string),
-		helpers.PutHeadersWithBearer(
+		httpHelpers.PutHeadersWithBearer(
 			config.ConfigData.Token,
 		),
 		[]byte(body),
@@ -85,7 +85,7 @@ func assignIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := helpers.JSONHttpReponse(response)
+	message, err := httpHelpers.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}

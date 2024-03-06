@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cedrata/jira-helper/pkg/config"
-	"github.com/cedrata/jira-helper/pkg/helpers"
+	httpHelpers "github.com/cedrata/jira-helper/pkg/helpers/http"
 	"github.com/spf13/cobra"
 )
 
@@ -60,7 +60,7 @@ func transitionIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	requestHelper := helpers.NewRequestHelper(
+	requestHelper := httpHelpers.NewRequestHelper(
 		config.ConfigData.Host,
 		fmt.Sprintf(
 			"rest/api/2/issue/%s/transitions",
@@ -68,7 +68,7 @@ func transitionIssueHandler(cmd *cobra.Command, args []string) error {
 		),
 		http.MethodPost,
 		make(map[string]string),
-		helpers.PostHeadersWithBearer(
+		httpHelpers.PostHeadersWithBearer(
 			config.ConfigData.Token,
 		),
 		[]byte(body),
@@ -84,7 +84,7 @@ func transitionIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := helpers.JSONHttpReponse(response)
+	message, err := httpHelpers.JSONHttpReponse(response)
 	if err != nil {
 		return err
 	}
