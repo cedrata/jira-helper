@@ -21,7 +21,7 @@ To follow you can find the implemented endpoints for each jira group:
     - [Get Current User](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-myself/#api-rest-api-2-myself-get) ✅
 
 ## Configuration
-Before using the cli create the file `~/.jhelp.config` with the same structure as follows:
+Before using the cli create the file `~/.jira-helper.config` with the same structure as follows:
 ```
 [default]
 host=your.host.com

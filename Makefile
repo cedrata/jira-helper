@@ -1,5 +1,5 @@
 build:
-	go build -o ./bin/jhelp
+	go build -o ./bin/jira-helper
 
 test:
 	go test ./...

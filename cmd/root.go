@@ -23,7 +23,7 @@ func Execute() error {
 
 func init() {
 	rootCmd = &cobra.Command{
-		Use:               "jhelp [flags] <command> ",
+		Use:               "jira-helper [flags] <command> ",
 		Short:             "An helper for using JIRA on CLI",
 		Long:              `An helper for using JIRA on CLI`,
 		PersistentPreRunE: persistentPreRunHandler,
@@ -31,7 +31,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("host", "H", "", "jira instance host")
 	rootCmd.PersistentFlags().StringP("token", "t", "", "jira instance token")
 	rootCmd.PersistentFlags().StringP("profile", "p", "default", "configuration profile")
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jhelp.config)")
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jira-helper.config)")
 
 	_ = viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
 	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))

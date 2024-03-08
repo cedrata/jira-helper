@@ -6,7 +6,7 @@ import (
 
 const (
 	ConfigType        = "ini"
-	DefaultConfigName = ".jhelp.config"
+	DefaultConfigName = ".jira-helper.config"
 )
 
 type Config struct {
