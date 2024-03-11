@@ -3,6 +3,11 @@ This project is born to help building automation scripts with jira. This CLI is 
 
 Because a tool to query JSON payloads is already available ([jq](https://jqlang.github.io/jq/)) this cli is intended to act as a simple HTTP client so it's flexible enogh and can help building scripts to automate you work with jira if needed.
 
+## Installing
+```
+    go install github.com/cedrata/jira-helper@latest
+```
+
 ## Featrues
 Because this implementation aims to be 1:1 implementation of the [JIRA REST API v2](https://developer.atlassian.com/cloud/jira/platform/rest/v2/intro/#about) a command will exist for each section. Each command will have it's own subcommand, each subcommand will be linked to a URL and an HTTP method to keep the integration simple.
 
