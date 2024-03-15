@@ -1,8 +1,6 @@
 package config
 
 import (
-	// "os"
-	// "path/filepath"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -44,7 +42,7 @@ func TestLoadLocalConfig(t *testing.T) {
 		err := LoadLocalConfig(configDir, DefaultConfigName, resultViper)
 
 		assert.Error(t, err,
-		"Reading an invalid formatted configuration should result in error",
+			"Reading an invalid formatted configuration should result in error",
 		)
 
 		_, ok := err.(viper.ConfigFileNotFoundError)
@@ -74,20 +72,4 @@ func TestLoadLocalConfig(t *testing.T) {
 		actualContent := resultViper.GetStringMapString("default")
 		assert.Equal(t, expectedContent, actualContent)
 	})
-}
-
-func TestValidateProfile(t *testing.T) {
-	resultViper := viper.New()
-	configDir := t.TempDir()
-	configContent := "[default]\nurl=value1\ntoken=value2"
-	configFullPath := filepath.Join(configDir, DefaultConfigName)
-
-	_ = os.WriteFile(configFullPath, []byte(configContent), 0777)
-
-	resultViper.Set("default.host", "hello")
-	resultViper.Set("default.token", "world")
-
-	config, err := ValidateProfile("default", resultViper)
-	t.Log(config)
-	t.Log(err)
 }

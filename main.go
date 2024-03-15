@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-    if err := cmd.Execute(); err != nil {
-        cobra.CheckErr(err)
-    }
+	if err := cmd.Execute(); err != nil {
+		cobra.CheckErr(err)
+	}
 }

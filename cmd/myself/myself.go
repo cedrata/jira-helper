@@ -8,9 +8,9 @@ import (
 var MyselfCmd *cobra.Command
 
 func init() {
-    MyselfCmd = & cobra.Command{
-        Use: "myself",
-    }
-    
-    MyselfCmd.AddCommand(getcurrentuser.GetCurrentUserCmd)
+	MyselfCmd = &cobra.Command{
+		Use: "myself",
+	}
+
+	MyselfCmd.AddCommand(getcurrentuser.GetCurrentUserCmd)
 }

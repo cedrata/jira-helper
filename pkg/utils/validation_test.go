@@ -73,7 +73,7 @@ func TestValidateStruct(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			err := ValidateStruct(test.toValidate)
-            t.Log(err)
+			t.Log(err)
 			if test.expectedError {
 				assert.Error(t, err)
 			} else {

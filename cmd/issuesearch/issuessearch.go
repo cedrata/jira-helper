@@ -12,5 +12,5 @@ func init() {
 		Use: "issue-search",
 	}
 
-    IssueSearchCmd.AddCommand(jql.JqlCmd)
+	IssueSearchCmd.AddCommand(jql.JqlCmd)
 }
