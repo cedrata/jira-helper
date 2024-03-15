@@ -14,7 +14,7 @@ others who are seeking help. Harassment of any kind will not be tolerated.
    similar one was already opened. If there is one already opened, feel free
    to comment on it.
 1. If you believe you've found a bug, please provide detailed steps of
-   reproduction, the version of Cobra and anything else you believe will be
+   reproduction, the version of this tool and anything else you believe will be
    useful to help troubleshoot it (e.g. OS environment, environment variables,
    etc...). Also state the current behavior vs. the expected behavior.
 1. If you'd like to see a feature or an enhancement please open an issue with
