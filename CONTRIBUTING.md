@@ -23,11 +23,9 @@ others who are seeking help. Harassment of any kind will not be tolerated.
 
 ## Submitting changes
 
-1. CLA: Upon submitting a Pull Request (PR), contributors will be prompted to
-   sign a CLA. Please sign the CLA :slightly_smiling_face:
 1. Tests: If you are submitting code, please ensure you have adequate tests
    for the feature. Tests can be run via `go test ./...` or `make test`.
-1. Since this is golang project, ensure the new code is properly formatted to
+1. Formatting: Ensure the new code is properly formatted to
    ensure code consistency. Run `make all`.
 
 ### Quick steps to contribute
