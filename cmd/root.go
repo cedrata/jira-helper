@@ -42,6 +42,7 @@ func init() {
 	rootCmd.AddCommand(issuesearch.IssueSearchCmd)
 	rootCmd.AddCommand(myself.MyselfCmd)
 	rootCmd.AddCommand(configure.ConfigureCmd)
+	rootCmd.AddCommand(configure.DeleteCmd)
 
 	v = viper.GetViper()
 }

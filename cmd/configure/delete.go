@@ -1,6 +1,7 @@
 package configure
 
 import (
+	"github.com/cedrata/jira-helper/cmd/configure/deleteprofile"
 	"github.com/spf13/cobra"
 )
 
@@ -11,5 +12,5 @@ func init() {
 		Use: "configure",
 	}
 
-	// DeleteCmd.AddCommand(deleteprofile.DeleteProfileCmd)
+	DeleteCmd.AddCommand(deleteprofile.DeleteProfileCmd)
 }
