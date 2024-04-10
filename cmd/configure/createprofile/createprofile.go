@@ -1,9 +1,10 @@
 package createprofile
 
 import (
-	"os"
+	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var CreateProfileCmd *cobra.Command
@@ -22,31 +23,37 @@ func init() {
 }
 
 func createProfileHandler(cmd *cobra.Command, args []string) error {
-	var err error
-	var name string
-	var host string
-	var token string
-
-	f, err := os.OpenFile("$HOME/.jira-helper.config", os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.WriteString("[" + name + "]\n")
+	name, err := cmd.Flags().GetString("name")
 	if err != nil {
 		return err
 	}
 
-	_, err = f.WriteString("host=" + host + "\n")
+	host, err := cmd.Flags().GetString("host")
 	if err != nil {
 		return err
 	}
 
-	_, err = f.WriteString("token=" + token + "\n")
+	token, err := cmd.Flags().GetString("token")
 	if err != nil {
 		return err
 	}
 
-	return nil
+	v := viper.GetViper()
+
+	if v == nil {
+		return fmt.Errorf("unable to access viper instance")
+	}
+
+	newProfile := map[string]interface{}{
+		"host":  host,
+		"token": token,
+	}
+
+	if v.Sub("profiles").InConfig(name) {
+		return fmt.Errorf("profile %s already exists", name)
+	}
+
+	viper.Set(fmt.Sprintf("profile.%s", name), newProfile)
+
+	return viper.WriteConfig()
 }
