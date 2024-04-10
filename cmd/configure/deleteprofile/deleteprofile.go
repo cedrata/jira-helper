@@ -1,7 +1,10 @@
 package deleteprofile
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var DeleteProfileCmd *cobra.Command
@@ -15,8 +18,30 @@ func init() {
 	}
 
 	_ = DeleteProfileCmd.Flags().String("name", "", "Name of profile.")
+
+	// Required flags
+	_ = DeleteProfileCmd.MarkFlagRequired("name")
 }
 
 func deleteProfileHandler(cmd *cobra.Command, args []string) error {
-	return nil
+	name, err := cmd.Flags().GetString("name")
+	if err != nil {
+		return err
+	}
+
+	v := viper.GetViper()
+
+	if v == nil {
+		return fmt.Errorf("unable to access viper instance")
+	}
+
+	if !v.InConfig("profiles." + name) {
+		return fmt.Errorf("profile %s not found", name)
+	}
+
+	delete(viper.Get("profiles").(map[string]interface{}), name)
+
+	fmt.Printf("Profile %s deleted successfully.\n", name)
+
+	return viper.WriteConfig()
 }

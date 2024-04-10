@@ -20,6 +20,11 @@ func init() {
 	_ = CreateProfileCmd.Flags().String("name", "", "Name of profile.")
 	_ = CreateProfileCmd.Flags().String("host", "", "Host for profile.")
 	_ = CreateProfileCmd.Flags().String("token", "", "Token for profile.")
+
+	// Required flags
+	_ = CreateProfileCmd.MarkFlagRequired("name")
+	_ = CreateProfileCmd.MarkFlagRequired("host")
+	_ = CreateProfileCmd.MarkFlagRequired("token")
 }
 
 func createProfileHandler(cmd *cobra.Command, args []string) error {
@@ -53,7 +58,7 @@ func createProfileHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("profile %s already exists", name)
 	}
 
-	viper.Set(fmt.Sprintf("profile.%s", name), newProfile)
+	viper.Set(fmt.Sprintf("profiles.%s", name), newProfile)
 
 	return viper.WriteConfig()
 }
