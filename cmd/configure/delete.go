@@ -9,7 +9,7 @@ var DeleteCmd *cobra.Command
 
 func init() {
 	DeleteCmd = &cobra.Command{
-		Use: "configure",
+		Use: "delete",
 	}
 
 	DeleteCmd.AddCommand(deleteprofile.DeleteProfileCmd)
