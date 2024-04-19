@@ -35,11 +35,11 @@ func deleteProfileHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unable to access viper instance")
 	}
 
-	if !v.InConfig("profiles." + name) {
+	if !v.InConfig(name) {
 		return fmt.Errorf("profile %s not found", name)
 	}
 
-	delete(viper.Get("profiles").(map[string]interface{}), name)
+	delete(viper.Get(name).(map[string]interface{}), name)
 
 	fmt.Printf("Profile %s deleted successfully.\n", name)
 

@@ -7,7 +7,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var CreateProfileCmd *cobra.Command
+var (
+	v                *viper.Viper
+	CreateProfileCmd *cobra.Command
+)
 
 func init() {
 	CreateProfileCmd = &cobra.Command{
@@ -25,6 +28,8 @@ func init() {
 	_ = CreateProfileCmd.MarkFlagRequired("name")
 	_ = CreateProfileCmd.MarkFlagRequired("host")
 	_ = CreateProfileCmd.MarkFlagRequired("token")
+
+	v = viper.GetViper()
 }
 
 func createProfileHandler(cmd *cobra.Command, args []string) error {
@@ -43,22 +48,16 @@ func createProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	v := viper.GetViper()
-
-	if v == nil {
-		return fmt.Errorf("unable to access viper instance")
-	}
-
 	newProfile := map[string]interface{}{
 		"host":  host,
 		"token": token,
 	}
 
-	if v.Sub("profiles").InConfig(name) {
+	if v.InConfig(name) {
 		return fmt.Errorf("profile %s already exists", name)
 	}
 
-	viper.Set(fmt.Sprintf("profiles.%s", name), newProfile)
+	viper.Set(name, newProfile)
 
 	return viper.WriteConfig()
 }
