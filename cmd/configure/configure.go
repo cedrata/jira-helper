@@ -1,7 +1,7 @@
 package configure
 
 import (
-	"github.com/cedrata/jira-helper/cmd/configure/createprofile"
+	"github.com/cedrata/jira-helper/cmd/configure/set"
 	"github.com/spf13/cobra"
 )
 
@@ -12,5 +12,5 @@ func init() {
 		Use: "configure",
 	}
 
-	ConfigureCmd.AddCommand(createprofile.CreateProfileCmd)
+	ConfigureCmd.AddCommand(set.SetCmd)
 }

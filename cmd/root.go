@@ -42,12 +42,15 @@ func init() {
 	rootCmd.AddCommand(issuesearch.IssueSearchCmd)
 	rootCmd.AddCommand(myself.MyselfCmd)
 	rootCmd.AddCommand(configure.ConfigureCmd)
-	rootCmd.AddCommand(configure.DeleteCmd)
 
 	v = viper.GetViper()
 }
 
 func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
+	if cmd.Name() == "set" {
+		return nil
+	}
+
 	var err error
 	var configPath string
 	const configName = config.DefaultConfigName
