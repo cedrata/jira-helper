@@ -10,10 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	v      *viper.Viper
-	SetCmd *cobra.Command
-)
+var SetCmd *cobra.Command
 
 func init() {
 	SetCmd = &cobra.Command{
@@ -37,8 +34,6 @@ func setProfileHandler(cmd *cobra.Command, args []string) error {
 	var err error
 	var configPath string
 
-	config.ConfigData = &config.Config{}
-
 	name, _ := cmd.Flags().GetString("name")
 	host, _ := cmd.Flags().GetString("host")
 	token, _ := cmd.Flags().GetString("token")
@@ -54,31 +49,19 @@ func setProfileHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	v.Set(fmt.Sprintf("%v.host", name), host)
-	v.Set(fmt.Sprintf("%v.token", name), token)
-	v.Set("profile", name)
-	v.Set("host", host)
-	v.Set("token", token)
+	if name == "default" {
+		v.SetDefault("host", host)
+		v.SetDefault("token", token)
+	} else {
+		v.Set(fmt.Sprintf("%s.host", name), host)
+		v.Set(fmt.Sprintf("%s.token", name), token)
+	}
 
-	if err = v.WriteConfig(); err != nil {
+	if err = v.WriteConfigAs(configPath); err != nil {
 		return err
 	}
 
-	profile := v.GetString("profile")
-	err = v.UnmarshalKey(profile, config.ConfigData)
-	if err != nil {
-		return err
-	}
-
-	if token := v.GetString("token"); token != "" {
-		config.ConfigData.Token = token
-	}
-
-	if host := v.GetString("host"); host != "" {
-		config.ConfigData.Host = host
-	}
-
-	if err = utils.ValidateStruct(*config.ConfigData); err != nil {
+	if err = utils.ValidateStruct(config.Config{Host: host, Token: token}); err != nil {
 		return err
 	}
 
