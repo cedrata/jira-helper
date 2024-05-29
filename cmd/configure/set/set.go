@@ -50,20 +50,23 @@ func setProfileHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if name == "default" {
-		v.SetDefault("host", host)
-		v.SetDefault("token", token)
+		v.Set("default.host", host)
+		v.Set("default.token", token)
 	} else {
 		v.Set(fmt.Sprintf("%s.host", name), host)
 		v.Set(fmt.Sprintf("%s.token", name), token)
 	}
 
-	if err = v.WriteConfigAs(configPath); err != nil {
+	if err = v.WriteConfig(); err != nil {
 		return err
 	}
 
 	if err = utils.ValidateStruct(config.Config{Host: host, Token: token}); err != nil {
 		return err
 	}
+
+	config.ConfigData.Host = host
+	config.ConfigData.Token = token
 
 	return nil
 }

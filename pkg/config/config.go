@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	ConfigType        = "ini"
+	ConfigType        = "toml"
 	DefaultConfigName = ".jira-helper.config"
 )
 
