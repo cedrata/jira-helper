@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/cedrata/jira-helper/cmd/configure"
 	"github.com/cedrata/jira-helper/cmd/issues"
 	"github.com/cedrata/jira-helper/cmd/issuesearch"
 	"github.com/cedrata/jira-helper/cmd/myself"
@@ -40,11 +41,16 @@ func init() {
 	rootCmd.AddCommand(issues.IssuesCmd)
 	rootCmd.AddCommand(issuesearch.IssueSearchCmd)
 	rootCmd.AddCommand(myself.MyselfCmd)
+	rootCmd.AddCommand(configure.ConfigureCmd)
 
 	v = viper.GetViper()
 }
 
 func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
+	if cmd.Name() == "set" {
+		return nil
+	}
+
 	var err error
 	var configPath string
 	const configName = config.DefaultConfigName
