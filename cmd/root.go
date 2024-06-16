@@ -83,7 +83,7 @@ func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	} else if host != "" {
-		config.ConfigData.Token = host
+		config.ConfigData.Host = host
 	}
 
 	if err = utils.ValidateStruct(*config.ConfigData); err != nil {
