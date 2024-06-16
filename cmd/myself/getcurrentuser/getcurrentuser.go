@@ -71,7 +71,7 @@ func getCurrentUserHandler(cmd *cobra.Command, flags []string) error {
 		return err
 	}
 
-	message, err := httpHelpers.JSONHttpReponse(response)
+	message, err := httpHelpers.JSONHttpResponse(response)
 	if err != nil {
 		return err
 	}

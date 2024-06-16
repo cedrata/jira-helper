@@ -62,7 +62,7 @@ func jqlHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := httpHelpers.JSONHttpReponse(resopnse)
+	message, err := httpHelpers.JSONHttpResponse(resopnse)
 	if err != nil {
 		return err
 	}

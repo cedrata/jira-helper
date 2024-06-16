@@ -84,7 +84,7 @@ func transitionIssueHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	message, err := httpHelpers.JSONHttpReponse(response)
+	message, err := httpHelpers.JSONHttpResponse(response)
 	if err != nil {
 		return err
 	}

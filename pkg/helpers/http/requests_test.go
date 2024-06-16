@@ -110,7 +110,7 @@ func TestJSONResponse(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			body, err := JSONHttpReponse(test.response)
+			body, err := JSONHttpResponse(test.response)
 
 			assert.Equal(t, test.expected.body, body)
 			if test.expected.err != nil {
