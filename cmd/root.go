@@ -61,18 +61,29 @@ func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	profile := v.GetString("profile")
+	// profile := v.GetString("profile")
+	profile, err := cmd.Flags().GetString("profile")
+	if err != nil {
+		return err
+	}
+
 	err = v.UnmarshalKey(profile, config.ConfigData)
 	if err != nil {
 		return err
 	}
 
-	if token := v.GetString("token"); token != "" {
+	token, err := cmd.Flags().GetString("token")
+	if err != nil {
+		return err
+	} else if token != "" {
 		config.ConfigData.Token = token
 	}
 
-	if host := v.GetString("host"); host != "" {
-		config.ConfigData.Host = host
+	host, err := cmd.Flags().GetString("host")
+	if err != nil {
+		return err
+	} else if host != "" {
+		config.ConfigData.Token = host
 	}
 
 	if err = utils.ValidateStruct(*config.ConfigData); err != nil {
