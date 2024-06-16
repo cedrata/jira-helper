@@ -6,7 +6,7 @@ import (
 
 const (
 	ConfigType        = "toml"
-	DefaultConfigName = ".jira-helper.config"
+	DefaultConfigName = ".jira-helper.toml"
 )
 
 type Config struct {

@@ -32,11 +32,6 @@ func init() {
 	rootCmd.PersistentFlags().StringP("host", "H", "", "jira instance host")
 	rootCmd.PersistentFlags().StringP("token", "t", "", "jira instance token")
 	rootCmd.PersistentFlags().StringP("profile", "p", "default", "configuration profile")
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jira-helper.config)")
-
-	_ = viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
-	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-	_ = viper.BindPFlag("profile", rootCmd.PersistentFlags().Lookup("profile"))
 
 	rootCmd.AddCommand(issues.IssuesCmd)
 	rootCmd.AddCommand(issuesearch.IssueSearchCmd)
