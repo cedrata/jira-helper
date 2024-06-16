@@ -61,7 +61,6 @@ func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// profile := v.GetString("profile")
 	profile, err := cmd.Flags().GetString("profile")
 	if err != nil {
 		return err
