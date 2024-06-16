@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/cedrata/jira-helper/cmd/configure"
 	"github.com/cedrata/jira-helper/cmd/issues"
 	"github.com/cedrata/jira-helper/cmd/issuesearch"
 	"github.com/cedrata/jira-helper/cmd/myself"
@@ -31,20 +32,20 @@ func init() {
 	rootCmd.PersistentFlags().StringP("host", "H", "", "jira instance host")
 	rootCmd.PersistentFlags().StringP("token", "t", "", "jira instance token")
 	rootCmd.PersistentFlags().StringP("profile", "p", "default", "configuration profile")
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jira-helper.config)")
-
-	_ = viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
-	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-	_ = viper.BindPFlag("profile", rootCmd.PersistentFlags().Lookup("profile"))
 
 	rootCmd.AddCommand(issues.IssuesCmd)
 	rootCmd.AddCommand(issuesearch.IssueSearchCmd)
 	rootCmd.AddCommand(myself.MyselfCmd)
+	rootCmd.AddCommand(configure.ConfigureCmd)
 
 	v = viper.GetViper()
 }
 
 func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
+	if cmd.Name() == "set" {
+		return nil
+	}
+
 	var err error
 	var configPath string
 	const configName = config.DefaultConfigName
@@ -60,17 +61,27 @@ func persistentPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	profile := v.GetString("profile")
+	profile, err := cmd.Flags().GetString("profile")
+	if err != nil {
+		return err
+	}
+
 	err = v.UnmarshalKey(profile, config.ConfigData)
 	if err != nil {
 		return err
 	}
 
-	if token := v.GetString("token"); token != "" {
+	token, err := cmd.Flags().GetString("token")
+	if err != nil {
+		return err
+	} else if token != "" {
 		config.ConfigData.Token = token
 	}
 
-	if host := v.GetString("host"); host != "" {
+	host, err := cmd.Flags().GetString("host")
+	if err != nil {
+		return err
+	} else if host != "" {
 		config.ConfigData.Host = host
 	}
 

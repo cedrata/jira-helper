@@ -55,7 +55,7 @@ func TestBuildRequest(t *testing.T) {
 	}
 }
 
-func TestJSONPrettyResponse(t *testing.T) {
+func TestJSONResponse(t *testing.T) {
 	type result struct {
 		body string
 		err  error
@@ -72,11 +72,35 @@ func TestJSONPrettyResponse(t *testing.T) {
 			response: &http.Response{
 				StatusCode: 204,
 				Body:       io.NopCloser(bytes.NewBufferString("")),
+				Header: func() http.Header {
+					header := http.Header{}
+					header.Add("", "")
+					return header
+				}(),
 			},
 			expected: result{
 				body: `{
   "statusCode": 204,
-  "body": {}
+  "body": null
+}`,
+				err: nil,
+			},
+			name: "invalid content-type header",
+		},
+		{
+			response: &http.Response{
+				StatusCode: 204,
+				Body:       io.NopCloser(bytes.NewBufferString("")),
+				Header: func() http.Header {
+					header := http.Header{}
+					header.Add("Content-Type", "application/json")
+					return header
+				}(),
+			},
+			expected: result{
+				body: `{
+  "statusCode": 204,
+  "body": null
 }`,
 				err: nil,
 			},
@@ -86,10 +110,14 @@ func TestJSONPrettyResponse(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			body, err := JSONHttpReponse(test.response)
+			body, err := JSONHttpResponse(test.response)
 
-			assert.Equal(t, test.expected.err, err)
 			assert.Equal(t, test.expected.body, body)
+			if test.expected.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, test.expected.err, err)
+			}
 		})
 	}
 }

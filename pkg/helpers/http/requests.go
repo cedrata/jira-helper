@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type RequestHelper struct {
@@ -88,7 +89,7 @@ func GetHeadersWithBearer(token string) map[string]string {
 	}
 }
 
-func JSONHttpReponse(response *http.Response) (string, error) {
+func JSONHttpResponse(response *http.Response) (string, error) {
 	var buf bytes.Buffer
 	var err error
 
@@ -103,8 +104,10 @@ func JSONHttpReponse(response *http.Response) (string, error) {
 		return "", err
 	}
 
-	if string(body) == "" {
-		body = []byte("{}")
+	contentType := response.Header.Get("Content-Type")
+	if string(body) == "" ||
+		!strings.Contains(contentType, "application/json") {
+		body = []byte("null")
 	}
 
 	minified := fmt.Sprintf(

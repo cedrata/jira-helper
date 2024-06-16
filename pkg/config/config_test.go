@@ -11,7 +11,6 @@ import (
 )
 
 func TestLoadLocalConfig(t *testing.T) {
-
 	t.Run("File not found", func(t *testing.T) {
 		t.Parallel()
 
@@ -47,7 +46,7 @@ func TestLoadLocalConfig(t *testing.T) {
 
 		_, ok := err.(viper.ConfigFileNotFoundError)
 		assert.False(t, ok,
-			"The error should not be of type viper.CofigFileNotFoundError",
+			"The error should not be of type viper.ConfigFileNotFoundError",
 		)
 	})
 
@@ -56,7 +55,7 @@ func TestLoadLocalConfig(t *testing.T) {
 
 		resultViper := viper.New()
 		configDir := t.TempDir()
-		configContent := "[default]\nurl=value1\ntoken=value2"
+		configContent := "[default]\nurl = \"value1\"\ntoken = \"value2\""
 		configFullPath := filepath.Join(configDir, DefaultConfigName)
 
 		_ = os.WriteFile(configFullPath, []byte(configContent), 0777)
